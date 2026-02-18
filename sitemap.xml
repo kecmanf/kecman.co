@@ -18,7 +18,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  <!-- Add blog posts here as you publish them -->
   <url>
     <loc>https://kecman.co/blog/htb-cwee-review-experience.html</loc>
     <lastmod>2026-02-05</lastmod>
