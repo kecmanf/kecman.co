@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Bypassing Nginx ACLs in Python Applications | Filip Kecman</title>
+  <meta name="description" content="How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check has already passed. A classic parser differential vulnerability." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/bypassing-nginx-acls-python.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/bypassing-nginx-acls-python.html" />
+  <meta property="og:title" content="Bypassing Nginx ACLs in Python Applications" />
+  <meta property="og:description" content="How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check has already passed." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-01-27" />
+
+  <meta property="article:section" content="Web Security" />
+  <meta property="article:tag" content="Penetration Testing" />
+  <meta property="article:tag" content="Nginx" />
+  <meta property="article:tag" content="Python" />
+  <meta property="article:tag" content="Web Security" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Bypassing Nginx ACLs in Python Applications",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-01-27",
+    "description": "How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check has already passed.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/bypassing-nginx-acls-python.html"
+    },
+    "keywords": ["Nginx ACL bypass", "parser differential", "Python Flask security", "penetration testing", "web application security"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Bypassing Nginx ACLs in Python Applications" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Bypassing Nginx ACLs in Python Applications</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Web Security</span>
+          <span>January 27, 2026</span>
+          <span>4 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          When securing web applications, we often rely on a reverse proxy like Nginx to handle access control lists (ACLs) before traffic ever hits our backend. The logic is simple: if Nginx blocks <code>/admin</code>, no one touches the admin panel. But what happens when your proxy and your backend application disagree on what a URL looks like?
+        </p>
+        <p>
+          This is a classic "parser differential" vulnerability. Recently highlighted in the Skyfall machine on HackTheBox (and detailed by Ippsec), this technique exploits a discrepancy between how Nginx matches regex paths and how Python (specifically Flask/Werkzeug or custom application logic) sanitizes inputs.
+        </p>
+
+        <h2>The Setup</h2>
+        <p>Imagine a standard architecture:</p>
+        <p>Nginx sitting in front of a Python Flask application.</p>
+        <p>
+          The administrator wants to protect the <code>/admin</code> endpoint, so they add a restriction in <code>nginx.conf</code>. To ensure they are being precise, they might use a regular expression anchor to prevent accessing <code>/admin</code> but allow <code>/admin-public</code>.
+        </p>
+        <p><strong>Nginx Configuration:</strong></p>
+<pre><code>location ~ ^/admin$ {
+    deny all;
+    return 403;
+}</code></pre>
+
+        <p>
+          In the backend, the Flask application routes traffic. Perhaps there is a piece of middleware or a specific route handler that sanitizes the incoming path to ensure cleanliness, often using Python's built-in <code>.strip()</code> method to remove trailing whitespace.
+        </p>
+        <p><strong>Python/Flask Code (Conceptual):</strong></p>
+<pre><code>@app.before_request
+def sanitize_path():
+    # Attempt to clean up the path by removing trailing whitespace
+    request.path = request.path.strip()</code></pre>
+
+        <h2>The Attack: \x09</h2>
+        <p>
+          An attacker tries to access <code>/admin</code>. Nginx sees the request matches <code>^/admin$</code>, and instantly returns a 403 Forbidden.
+        </p>
+        <p>
+          However, the attacker then sends a request with a trailing horizontal tab character (<code>0x09</code>), often URL-encoded as <code>%09</code>.
+        </p>
+        <p><strong>Request:</strong></p>
+<pre><code>GET /admin%09 HTTP/1.1</code></pre>
+
+        <h3>1. The Nginx Check</h3>
+        <p>
+          Nginx receives the URI <code>/admin\t</code> (where <code>\t</code> is the tab character). It compares this string against the regex <code>^/admin$</code>.
+        </p>
+        <blockquote>
+          Does <code>/admin\t</code> match <code>/admin</code>? No. The <code>$</code> anchor asserts the end of the string, and the tab character means the string hasn't ended yet (or rather, the characters don't match exactly).
+        </blockquote>
+        <p><strong>Result:</strong> Nginx allows the request to pass through to the backend.</p>
+
+        <h3>2. The Flask/Python Processing</h3>
+        <p>
+          The request arrives at the Flask application. The application logic (or a zealous middleware) takes the path <code>/admin\t</code> and runs <code>.strip()</code>.
+        </p>
+        <blockquote>
+          In Python, <code>'string\t'.strip()</code> evaluates to <code>'string'</code>. The tab is removed. The path becomes <code>/admin</code>.
+        </blockquote>
+        <p><strong>Result:</strong> Flask routes the request to the <code>/admin</code> view function, serving the restricted content.</p>
+
+        <h2>Fuzzing whitespace characters</h2>
+        <p>
+          While <code>\x09</code> is the common example, let's see exactly what Python considers "strippable" versus what Nginx passes through.
+        </p>
+        <p>A quick script to iterate through all byte values (0-255):</p>
+<pre><code>for byte in range(256):
+    char = chr(byte)
+    if len(char.strip()) == 0:
+        print(f"{byte:02X} was stripped")</code></pre>
+
+        <p>Running this locally shows the issue is broader than just tabs.</p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../running_the_script.webp" alt="Running the whitespace fuzzing script" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+        </figure>
+
+        <p>Python strips the following:</p>
+        <ul>
+          <li><strong>Standard:</strong> <code>09</code> (Tab), <code>0A</code> (Line Feed), <code>0D</code> (Carriage Return), <code>20</code> (Space)</li>
+          <li><strong>Separators:</strong> <code>1C</code>, <code>1D</code>, <code>1E</code>, <code>1F</code> (File/Group/Record/Unit Separators)</li>
+          <li><strong>Other:</strong> <code>0B</code> (Vertical Tab), <code>0C</code> (Form Feed), <code>85</code> (Next Line), <code>A0</code> (Non-breaking Space)</li>
+        </ul>
+        <p>This means vectors like <code>/admin%1C</code> or <code>/admin%A0</code> are also valid bypasses if the regex isn't strict enough.</p>
+
+        <h2>Why This Happens</h2>
+        <p>
+          This vulnerability exists because of inconsistent normalization. Nginx assumes the URL it sees is the final URL and performs a strict regex match. Python's <code>.strip()</code> method, however, is aggressive - it removes far more than just standard spaces and tabs. It effectively "heals" the malformed URL into a valid one after the security check has already passed.
+        </p>
+        <p>While <code>\x09</code> (Tab) is the most common example, the fuzzing results show that this bypass works with a wide range of bytes that Python considers whitespace:</p>
+        <ul>
+          <li><strong>Standard Whitespace:</strong> <code>\x09</code> (Tab), <code>\x20</code> (Space), <code>\x0a</code> (Line Feed), <code>\x0d</code> (Carriage Return)</li>
+          <li><strong>Vertical/Page Breaks:</strong> <code>\x0b</code> (Vertical Tab), <code>\x0c</code> (Form Feed)</li>
+          <li><strong>Separators:</strong> <code>\x1c</code> through <code>\x1f</code> (File, Group, Record, and Unit Separators)</li>
+          <li><strong>Extended:</strong> <code>\x85</code> (Next Line), <code>\xa0</code> (Non-breaking Space)</li>
+        </ul>
+        <p>Any of these characters appended to a URL will break the Nginx <code>$</code> anchor match but will be silently removed by the backend.</p>
+
+        <h2>Remediation</h2>
+        <p>To fix this, you must ensure that your proxy and your backend normalize URLs identically, or simply make your proxy rules broader.</p>
+
+        <p><strong>1. Avoid Regex Anchors for Security</strong></p>
+        <p>
+          Instead of <code>location ~ ^/admin$</code>, use a prefix match like <code>location /admin</code> (without the regex <code>~</code> and strict anchors), which will catch <code>/admin</code>, <code>/admin/</code>, and <code>/admin%09</code>.
+        </p>
+
+        <p><strong>2. Reject, Don't Sanitize</strong></p>
+        <p>
+          In your backend, if a URL contains unexpected control characters, reject the request (return 400 Bad Request) rather than silently stripping them and processing the request.
+        </p>
+
+        <p>
+          Thanks for reading! Hopefully, this helps you catch similar bugs in your next engagement. You can add me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>.
+        </p>
+        <p>Happy Hacking!</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+# Filip Kecman - Penetration Tester
+
+> Penetration tester with 5+ years of experience and 200+ security projects completed. Specializing in web application security, mobile app pentesting, API security assessments, and secure code review. Based in Belgrade, Serbia, working worldwide.
+
+## About
+
+Filip Kecman is a professional penetration tester and security consultant. He holds the following certifications: CWEE (Certified Web Exploitation Expert), CWES (Certified Web Exploitation Specialist), eWPTX (Web Application Penetration Tester eXtreme), eMAPT (Mobile Application Penetration Tester), and eJPT (Junior Penetration Tester). He is currently pursuing the OSWE (OffSec Web Expert) certification.
+
+Filip is the CEO and Founder of The Free Security (https://thefreesecurity.com), a non-profit organization providing free penetration tests to organizations that need them. He also serves as a Teaching Assistant at the Faculty of Computing in Belgrade.
+
+## Services
+
+- Web Application Penetration Testing
+- Mobile Application Penetration Testing (Android & iOS)
+- API Security Assessment
+- Network Penetration Testing
+- Secure Code Review
+- Cloud Security Assessment
+- Social Engineering Testing
+- Security Consultation
+
+## Methodologies
+
+Filip follows industry-standard methodologies including OWASP WSTG (Web Security Testing Guide), OWASP Top 10, OWASP API Top 10, OWASP Mobile Top 10, OWASP MASVS (Mobile Application Security Verification Standard), and PTES (Penetration Testing Execution Standard).
+
+## Experience
+
+- Penetration Tester at SecureIT (2025 - Present)
+- Teaching Assistant at Faculty of Computing, Belgrade (2024 - 2026)
+- Penetration Tester at UN1QUELY (2023 - 2025)
+- Freelance Penetration Tester (2021 - Present)
+
+## Contact
+
+- Website: https://kecman.co
+- Email: filip@kecman.co
+- LinkedIn: https://www.linkedin.com/in/filip-kecman/
+- The Free Security: https://thefreesecurity.com
+
+## Blog Posts
+
+- [My Hack The Box CWEE Review and Experience](https://kecman.co/blog/htb-cwee-review-experience.html): A detailed review of the CWEE exam with study tips, the 10-day exam experience, and advice for aspiring web penetration testers.
+- [Bypassing Nginx ACLs in Python Applications](https://kecman.co/blog/bypassing-nginx-acls-python.html): How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check.
+- [How One Google Search Led to a Critical Vulnerability](https://kecman.co/blog/google-search-critical-vulnerability.html): A critical vulnerability found in seconds using OSINT and Google dorking, exposing an API key with no usage limits.

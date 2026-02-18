@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kecman.co/sitemap.xml
+
+# Block non-content pages
+Disallow: /thank-you.html
+
+# Allow AI crawlers for LLM discoverability
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /

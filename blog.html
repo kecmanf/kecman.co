@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Blog | Filip Kecman - Penetration Testing Insights</title>
+  <meta name="description" content="Security blog by Filip Kecman. Penetration testing write-ups, vulnerability research, web and mobile security tips, and industry insights." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog.html" />
+  <link rel="alternate" type="text/plain" href="https://kecman.co/llms.txt" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kecman.co/blog.html" />
+  <meta property="og:title" content="Security Blog | Filip Kecman" />
+  <meta property="og:description" content="Penetration testing write-ups, vulnerability research, and security tips." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html#about">About</a>
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#certifications">Certs</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="index.html#thefreesecurity">TFS</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG LISTING -->
+  <section class="blog-page">
+    <div class="container">
+      <span class="section-label">Blog</span>
+      <h1 class="section-title">Security insights &amp; write-ups</h1>
+      <p class="section-subtitle">Pentesting stories, techniques, and lessons learned along the way.</p>
+
+      <!-- Filters -->
+      <div class="blog-filters">
+        <button class="blog-filter-btn active" data-filter="all">All</button>
+        <button class="blog-filter-btn" data-filter="web-security">Web Security</button>
+        <button class="blog-filter-btn" data-filter="mobile-security">Mobile Security</button>
+        <button class="blog-filter-btn" data-filter="pentesting">Pentesting</button>
+        <button class="blog-filter-btn" data-filter="api-security">API Security</button>
+        <button class="blog-filter-btn" data-filter="tools">Tools</button>
+        <button class="blog-filter-btn" data-filter="career">Career</button>
+      </div>
+
+      <!-- Blog Grid -->
+      <div class="blog-grid">
+
+        <a href="blog/htb-cwee-review-experience.html" class="blog-card reveal" data-tags="career pentesting">
+          <div class="blog-meta">
+            <span class="blog-tag">Career</span>
+            <span>2026-02-05</span>
+            <span>5 min read</span>
+          </div>
+          <h3>My Hack The Box CWEE Review &amp; Experience</h3>
+          <p>A detailed review of the CWEE exam: study tips, the 10-day exam experience, mindset advice, and why debugging is your best friend.</p>
+          <span class="read-more">Read more <span class="arrow">→</span></span>
+        </a>
+
+        <a href="blog/bypassing-nginx-acls-python.html" class="blog-card reveal" data-tags="web-security pentesting">
+          <div class="blog-meta">
+            <span class="blog-tag">Web Security</span>
+            <span>2026-01-27</span>
+            <span>4 min read</span>
+          </div>
+          <h3>Bypassing Nginx ACLs in Python Applications</h3>
+          <p>How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check has already passed.</p>
+          <span class="read-more">Read more <span class="arrow">→</span></span>
+        </a>
+
+        <a href="blog/google-search-critical-vulnerability.html" class="blog-card reveal" data-tags="pentesting">
+          <div class="blog-meta">
+            <span class="blog-tag">Pentesting</span>
+            <span>2025-08-31</span>
+            <span>3 min read</span>
+          </div>
+          <h3>How One Google Search Led to a Critical Vulnerability</h3>
+          <p>A critical vulnerability found in seconds using OSINT and Google dorking. An exposed API key with no usage limits that could have caused massive financial damage.</p>
+          <span class="read-more">Read more <span class="arrow">→</span></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
