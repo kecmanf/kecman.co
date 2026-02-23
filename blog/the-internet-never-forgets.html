@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>The Internet Never Forgets: How Archived Data Becomes a Security Risk | Filip Kecman</title>
+  <meta name="description" content="You deleted it. You moved on. But the Wayback Machine didn't. Learn how archived URLs, cached pages, and forgotten endpoints become real attack vectors during penetration tests." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/the-internet-never-forgets.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/the-internet-never-forgets.html" />
+  <meta property="og:title" content="The Internet Never Forgets: How Archived Data Becomes a Security Risk" />
+  <meta property="og:description" content="You deleted it. You moved on. But the Wayback Machine didn't. Learn how attackers use archived URLs to find real vulnerabilities." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-02-23" />
+
+  <meta property="article:section" content="OSINT" />
+  <meta property="article:tag" content="OSINT" />
+  <meta property="article:tag" content="Wayback Machine" />
+  <meta property="article:tag" content="Reconnaissance" />
+  <meta property="article:tag" content="Penetration Testing" />
+  <meta property="article:tag" content="Information Disclosure" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "The Internet Never Forgets: How Archived Data Becomes a Security Risk",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-02-23",
+    "description": "You deleted it. You moved on. But the Wayback Machine didn't. Learn how archived URLs, cached pages, and forgotten endpoints become real attack vectors during penetration tests.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/the-internet-never-forgets.html"
+    },
+    "keywords": ["Wayback Machine", "archive.org", "waybackurls", "OSINT", "reconnaissance", "penetration testing", "information disclosure", "broken access control"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "The Internet Never Forgets" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>The Internet Never Forgets: How Archived Data Becomes a Security Risk</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">OSINT</span>
+          <span>February 23, 2026</span>
+          <span>6 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          You deployed a staging environment with debug mode on. Realized the mistake a week later, took it down, and moved on. No harm done, right?
+        </p>
+        <p>
+          Except someone, or more precisely, some<em>thing</em>, already saved a snapshot. And now, months later, an attacker is reading your error logs, your internal API routes, and the UUID-based links you thought were private. All from a publicly accessible archive.
+        </p>
+        <p>
+          This is not a hypothetical scenario. It happens during penetration tests all the time.
+        </p>
+
+        <h2>What Is Archive.org and the Wayback Machine?</h2>
+        <p>
+          <a href="https://archive.org" target="_blank" rel="noopener">Archive.org</a> is a non-profit digital library with a straightforward mission: preserve the internet. Its most well-known tool is the <a href="https://web.archive.org" target="_blank" rel="noopener">Wayback Machine</a>, which has been crawling and saving snapshots of websites since 1996. As of today, it holds over 800 billion archived web pages.
+        </p>
+        <p>
+          Anyone can type a URL into the Wayback Machine and browse what that page looked like at various points in time. It's an incredible resource for historians, researchers, and journalists. But it's also an incredible resource for attackers.
+        </p>
+        <p>
+          And it's not just Archive.org. Services like <strong>Google Cache</strong>, <strong>Common Crawl</strong>, <strong>Bing Cache</strong>, and <strong>various web scrapers</strong> also store copies of web content. Some of them do it automatically, without the website owner ever knowing.
+        </p>
+
+        <h2>Automating Reconnaissance with waybackurls</h2>
+        <p>
+          Penetration testers and bug bounty hunters don't manually browse the Wayback Machine looking for juicy pages. They automate it. One of the most popular tools for this is <a href="https://github.com/tomnomnom/waybackurls" target="_blank" rel="noopener"><strong>waybackurls</strong></a>, built by security researcher Tom Hudson (tomnomnom).
+        </p>
+        <p>
+          The concept is simple: give it a domain, and it returns every URL that the Wayback Machine has ever indexed for that domain. Every page. Every endpoint. Every file. Everything that was once publicly reachable.
+        </p>
+        <p>Usage is straightforward:</p>
+<pre><code>echo "example.com" | waybackurls</code></pre>
+        <p>
+          The output can be thousands, sometimes tens of thousands, of URLs. Among those URLs is where things get interesting.
+        </p>
+
+        <h2>What Can Go Wrong</h2>
+        <p>
+          Let's walk through the real-world scenarios that make this dangerous. These are not theoretical; they are patterns I've encountered across multiple engagements.
+        </p>
+
+        <h3>1. Hidden Endpoints That Were Never Meant to Be Public</h3>
+        <p>
+          Companies frequently deploy staging environments, admin panels, or internal tools on subdomains or paths that are "not linked anywhere." The assumption is that if there's no link pointing to it, nobody will find it.
+        </p>
+        <p>
+          But web crawlers don't need links. If that page was ever reachable, even briefly, and a crawler happened to index it, the URL now lives permanently in the Wayback Machine's database. Running <code>waybackurls</code> will surface it, even years after the page was removed.
+        </p>
+        <p>
+          During engagements, I've found archived URLs pointing to:
+        </p>
+        <ul>
+          <li>Forgotten admin panels (<code>/admin-old</code>, <code>/backoffice</code>)</li>
+          <li>Staging environments with weaker authentication</li>
+          <li>Debug endpoints that dump stack traces and configuration details</li>
+          <li>API documentation pages that reveal every internal endpoint</li>
+          <li>Backup files (<code>.sql.bak</code>, <code>.zip</code>, <code>.tar.gz</code>) sitting in web-accessible directories</li>
+        </ul>
+        <p>
+          The page may be gone, but the URL is not. And sometimes, the endpoint is still live, just unlisted.
+        </p>
+
+        <h3>2. Sensitive Data Leaked Directly in URLs</h3>
+        <p>
+          This one is more common than you'd think. Some applications pass sensitive information as URL query parameters. Password reset tokens, session identifiers, API keys, or internal document IDs, all embedded in the URL itself.
+        </p>
+        <p>
+          When a crawler archives that page, the full URL is preserved, including every parameter. Consider a URL like:
+        </p>
+<pre><code>https://app.example.com/reset-password?token=a8f3e9b1-47cd-4e2a-bf90-1234567890ab</code></pre>
+        <p>
+          If that token is still valid (and many password reset tokens have long or no expiration), an attacker who finds this archived URL can potentially reset the account password. No exploitation needed. Just a URL from the archive.
+        </p>
+
+        <h3>3. UUIDs in URLs + Broken Access Control = Data Breach</h3>
+        <p>
+          This is the scenario that should concern every business owner. Many modern applications use UUIDs (Universally Unique Identifiers) in their URLs to reference resources. They look like this:
+        </p>
+<pre><code>https://app.example.com/documents/c9a1f2e3-8b7d-4c6a-9e5f-0a1b2c3d4e5f</code></pre>
+        <p>
+          The implicit security assumption is: "The UUID is random enough that nobody could guess it, so we don't need to check whether the user is authorized to access this resource."
+        </p>
+        <p>
+          This is a textbook <strong>Broken Access Control</strong> vulnerability (OWASP Top 10, A01:2025). The UUID is not a security mechanism. It's an identifier. If the server doesn't verify that the requesting user is authorized to view that document, then anyone with the UUID can access it.
+        </p>
+        <p>
+          Now combine this with the Wayback Machine. A crawler indexes a page that contains a link to <code>/documents/c9a1f2e3-...</code>. That link is now archived. An attacker runs <code>waybackurls</code>, finds the UUID, visits the URL, and, because there's no authorization check, downloads the document.
+        </p>
+        <p>
+          The document could be an invoice, a contract, medical records, employee data, or anything else your application handles.
+        </p>
+
+        <h3>4. JavaScript Files and API Endpoints</h3>
+        <p>
+          Archived JavaScript files are a goldmine. Developers often hardcode API base URLs, internal service endpoints, authentication tokens, or feature flags directly in frontend JavaScript. Even if the current version of the JS file is clean, an older version from the Wayback Machine might reveal:
+        </p>
+        <ul>
+          <li>Internal API endpoints that are still active but not documented</li>
+          <li>Hardcoded credentials or API keys that were later rotated (or not)</li>
+          <li>Comments referencing internal infrastructure, IPs, or service names</li>
+          <li>Feature flags that unlock hidden admin functionality</li>
+        </ul>
+
+        <h3>5. Exposed Configuration and Environment Files</h3>
+        <p>
+          Misconfigurations that briefly expose <code>.env</code>, <code>web.config</code>, <code>config.php</code>, or <code>application.yml</code> files can be archived before anyone notices. These files often contain database credentials, third-party API keys, SMTP passwords, and encryption secrets. Even if you fix the misconfiguration within hours, the damage might already be archived.
+        </p>
+
+        <h2>Beyond the Wayback Machine</h2>
+        <p>
+          Archive.org is the most well-known source, but a thorough penetration test checks multiple archival and caching services:
+        </p>
+        <ul>
+          <li><strong>Google Cache:</strong> <code>cache:example.com/page</code> in Google search reveals the last crawled version</li>
+          <li><strong>Common Crawl:</strong> An open dataset of web crawl data containing petabytes of archived content</li>
+          <li><strong>URLScan.io:</strong> Stores scan results including full page content and network requests</li>
+          <li><strong>AlienVault OTX:</strong> Aggregates threat intelligence including historically observed URLs</li>
+          <li><strong>VirusTotal:</strong> Stores URL scan results that can reveal past page content and behavior</li>
+        </ul>
+        <p>
+          Between these services, removing something from your own server is only a small part of the equation. The data might live on in half a dozen third-party databases.
+        </p>
+
+        <h2>What You Can Do About It</h2>
+        <p>
+          The uncomfortable truth is that you cannot fully erase something once it has been archived. But you can dramatically reduce your exposure:
+        </p>
+
+        <p><strong>1. Never put sensitive data in URLs.</strong> Tokens, session IDs, API keys, and document identifiers should be transmitted in request headers or POST bodies, never in query parameters or URL paths that can be logged, cached, and archived.</p>
+
+        <p><strong>2. Implement proper access controls.</strong> Every endpoint that serves sensitive data should verify authorization. A UUID in a URL is not a substitute for access control. Treat every direct object reference as potentially guessable.</p>
+
+        <p><strong>3. Use <code>robots.txt</code> and <code>X-Robots-Tag</code> headers strategically.</strong> While not a security boundary (malicious crawlers will ignore them), legitimate archival services like Archive.org respect <code>robots.txt</code> directives. You can request exclusion from the Wayback Machine by disallowing their crawler (ia_archiver).</p>
+
+        <p><strong>4. Monitor your archived footprint.</strong> Periodically run <code>waybackurls</code> against your own domain. If you find archived URLs that expose sensitive information, you can request removal from Archive.org. For Google Cache, use the <a href="https://search.google.com/search-console/removals" target="_blank" rel="noopener">URL Removal Tool</a> in Search Console.</p>
+
+        <p><strong>5. Rotate secrets immediately.</strong> If any credential, token, or API key has ever been exposed in a URL or cached page, assume it has been archived and compromised. Rotate it immediately. Don't wait to check whether someone has actually exploited it.</p>
+
+        <p><strong>6. Get a penetration test.</strong> A professional penetration test includes OSINT and reconnaissance phases where archived data analysis is standard practice. If you've never had someone run <code>waybackurls</code> against your domain, you don't know what your real attack surface looks like. It's better to find out from a pentester than from an attacker.</p>
+
+        <h2>The Takeaway</h2>
+        <p>
+          The internet has a near-perfect memory. Every staging environment you forgot about, every debug page you left up for a day, every token you accidentally passed in a URL, someone or something probably saved a copy.
+        </p>
+        <p>
+          The Wayback Machine and tools like <code>waybackurls</code> are not obscure hacker tools. They are freely available, well-documented, and routinely used by security professionals worldwide. If you're not checking what your archived footprint looks like, you're leaving a blind spot that attackers will happily exploit.
+        </p>
+        <p>
+          Deleting something from your server doesn't delete it from the internet. Plan accordingly.
+        </p>
+        <p>
+          If you want to learn what your archived attack surface looks like, feel free to reach out on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> or through my <a href="../index.html#contact">contact form</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

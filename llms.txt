@@ -39,6 +39,7 @@ Filip follows industry-standard methodologies including OWASP WSTG (Web Security
 
 ## Blog Posts
 
+- [The Internet Never Forgets: How Archived Data Becomes a Security Risk](https://kecman.co/blog/the-internet-never-forgets.html): How the Wayback Machine, waybackurls, and web archives expose forgotten endpoints, leaked tokens, and UUID-based resources with broken access control.
 - [My Hack The Box CWEE Review and Experience](https://kecman.co/blog/htb-cwee-review-experience.html): A detailed review of the CWEE exam with study tips, the 10-day exam experience, and advice for aspiring web penetration testers.
 - [Bypassing Nginx ACLs in Python Applications](https://kecman.co/blog/bypassing-nginx-acls-python.html): How a trailing tab character can bypass Nginx regex ACLs when Python's .strip() normalizes the URL after the security check.
 - [How One Google Search Led to a Critical Vulnerability](https://kecman.co/blog/google-search-critical-vulnerability.html): A critical vulnerability found in seconds using OSINT and Google dorking, exposing an API key with no usage limits.

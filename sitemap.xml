@@ -19,6 +19,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://kecman.co/blog/the-internet-never-forgets.html</loc>
+    <lastmod>2026-02-23</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://kecman.co/blog/htb-cwee-review-experience.html</loc>
     <lastmod>2026-02-05</lastmod>
     <changefreq>yearly</changefreq>
