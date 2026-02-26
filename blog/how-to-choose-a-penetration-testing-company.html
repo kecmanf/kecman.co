@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>How to Choose a Penetration Testing Company: A Practical Guide | Filip Kecman</title>
+  <meta name="description" content="A practical guide to choosing the right penetration testing company. What to look for in a pentester, which certifications actually matter, what a quality report includes, and how to avoid paying for an empty deliverable." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/how-to-choose-a-penetration-testing-company.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/how-to-choose-a-penetration-testing-company.html" />
+  <meta property="og:title" content="How to Choose a Penetration Testing Company: A Practical Guide" />
+  <meta property="og:description" content="What to look for in a pentester, which certifications matter, what a quality report includes, and how to avoid paying for an empty deliverable." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-02-26" />
+
+  <meta property="article:section" content="Pentesting" />
+  <meta property="article:tag" content="Penetration Testing" />
+  <meta property="article:tag" content="Security Consulting" />
+  <meta property="article:tag" content="Hiring" />
+  <meta property="article:tag" content="Pentest Report" />
+  <meta property="article:tag" content="Vendor Selection" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "How to Choose a Penetration Testing Company: A Practical Guide",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-02-26",
+    "description": "A practical guide to choosing the right penetration testing company. What to look for in a pentester, which certifications actually matter, what a quality report includes, and how to avoid paying for an empty deliverable.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/how-to-choose-a-penetration-testing-company.html"
+    },
+    "keywords": ["how to choose penetration testing company", "hire penetration tester", "pentest vendor selection", "pentest report quality", "penetration testing guide", "security assessment"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "How to Choose a Penetration Testing Company" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>How to Choose a Penetration Testing Company: A Practical Guide</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Pentesting</span>
+          <span>February 26, 2026</span>
+          <span>7 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          A company reaches out. They want a penetration test for their web application. They sign the contract, pay the invoice, and wait. Two weeks later, the report arrives. They open it expecting a list of findings, severity ratings, remediation steps. Instead, they get a few pages of boilerplate methodology description and a findings section that says: <strong>"No vulnerabilities were identified during the assessment."</strong>
+        </p>
+        <p>
+          Ten thousand dollars for a document that essentially says "everything is fine."
+        </p>
+        <p>
+          Here's the thing: that report might be completely accurate. Or it might be the most expensive piece of fiction you've ever purchased. The problem is that most organizations have no way of knowing which one it is. And that's the real issue.
+        </p>
+
+        <h2>Two Reasons for an Empty Report</h2>
+        <p>
+          Let's be honest. There are exactly two explanations for a penetration test that finds nothing:
+        </p>
+        <p>
+          <strong>1. Your application is genuinely well-secured.</strong> Your development team follows secure coding practices. You've had previous assessments and fixed everything. Input validation is solid, access controls are properly implemented, authentication is strong, and your infrastructure is hardened. It's rare, but it happens. Some applications really are in good shape.
+        </p>
+        <p>
+          <strong>2. The pentester wasn't thorough enough.</strong> Maybe they ran an automated scanner, copied the output into a template, and called it a day. Maybe they lacked the experience to test beyond surface-level vulnerabilities. Maybe they spent most of the engagement on reconnaissance and ran out of time before doing any real testing. Maybe they didn't understand your application's business logic well enough to find the flaws that matter.
+        </p>
+        <p>
+          Both scenarios are real. Both happen regularly. And the difference between them is not the report itself. It's everything that happened before the report was written.
+        </p>
+
+        <h2>The Problem Starts Before the Engagement</h2>
+        <p>
+          Most companies treat hiring a penetration tester the way they'd hire a plumber. Someone has the right title, they seem credible, the price is reasonable, so you hand them the job and wait for results.
+        </p>
+        <p>
+          But a penetration tester is not a plumber. A penetration tester should be your <strong>partner</strong>. Someone you trust to understand your business, protect your interests, and communicate openly with you throughout the entire process. Not someone you hand a URL to and hope for the best. Not someone you're left wondering whether they actually did the work.
+        </p>
+        <p>
+          A cybersecurity expert's job is to support you, to make your life easier, to help you understand your risk and feel confident about your security posture. If, after receiving a report, your first instinct is to doubt whether you got what you paid for, that relationship already failed. And it's a sign you need to be more careful about who you choose next time.
+        </p>
+
+        <h2>What to Look for Before You Hire</h2>
+        <p>
+          Before signing a contract, there are specific questions you should be asking. Not to interrogate the tester, but to protect your investment.
+        </p>
+
+        <h3>Experience and Track Record</h3>
+        <p>
+          How many years have they been doing this? How many engagements have they completed? Do they specialize in the type of testing you need (web, mobile, API, network), or are they generalists trying to cover everything? A pentester with deep experience in web application security will find things that a generalist with surface-level knowledge across everything simply won't.
+        </p>
+        <p>
+          Ask for anonymized case studies or examples of past findings. Not to see confidential details, but to understand the depth of their work. A tester who regularly finds business logic flaws, authorization bypasses, and chained attack vectors is operating at a fundamentally different level than one whose reports mostly contain missing HTTP headers and outdated TLS configurations.
+        </p>
+
+        <h3>Certifications (With a Huge Caveat)</h3>
+        <p>
+          Certifications can be a useful signal, but let me be very direct here: <strong>a certification is not a guarantee that the person knows what they're doing.</strong>
+        </p>
+        <p>
+          I've personally participated in interviewing candidates for penetration testing roles, and I've seen people holding respected offensive security certifications, including OSCP and OSWE, who could not answer basic technical questions. I'm not talking about edge cases or advanced topics. I'm talking about fundamental concepts that any working pentester should know by instinct. How they obtained those certifications is a question I can't answer, but the credentials on their profile did not reflect their actual ability.
+        </p>
+        <p>
+          That said, certifications that involve hands-on practical exams and report writing are still more meaningful than multiple-choice certifications. Look for credentials like <strong>OSWE</strong>, <strong>OSCP</strong>, <strong>CWEE</strong>, <strong>BSCP</strong>, or similar. These at least demonstrate that the person went through an exam that required finding and exploiting real vulnerabilities. But never treat a certification as proof of skill. Treat it as one data point among many. Ask follow-up questions. Ask them to describe a recent finding, walk you through their approach, explain how they'd test your specific application. The answers will tell you far more than any badge on their LinkedIn profile.
+        </p>
+
+        <h3>Methodology</h3>
+        <p>
+          Ask what methodology they follow. A professional pentester should be able to articulate their approach clearly. Industry-standard frameworks like <strong>OWASP WSTG</strong> (Web Security Testing Guide), <strong>PTES</strong> (Penetration Testing Execution Standard), <strong>OWASP MASVS</strong> for mobile, or <strong>OWASP API Top 10</strong> for API testing exist for a reason. They ensure comprehensive coverage.
+        </p>
+        <p>
+          If the answer to "what's your methodology?" is vague, generic, or amounts to "we run some tools and see what comes up," that's a red flag. A structured methodology means every relevant attack surface gets tested systematically. Without one, coverage is random and gaps are guaranteed.
+        </p>
+
+        <h3>Scope and Testing Approach</h3>
+        <p>
+          Before the engagement starts, you should have a detailed conversation about scope. What exactly is being tested? Which endpoints, which user roles, which functionality? Are they testing business logic, or just running OWASP Top 10 checks? Will they test with authenticated sessions at different privilege levels?
+        </p>
+        <p>
+          A thorough penetration test of a complex web application might require testing as an unauthenticated user, a regular user, an admin, and verifying that privilege escalation between roles is not possible. If your tester doesn't ask about user roles and access levels, they're not testing the things that actually get exploited in real breaches.
+        </p>
+
+        <h2>What to Demand During the Engagement</h2>
+
+        <h3>Communicate Your Concerns</h3>
+        <p>
+          You know your application better than the tester does. If you have specific concerns (a recently deployed feature, a payment flow, a file upload mechanism, an API that handles sensitive data), communicate them upfront. A good pentester will welcome this input because it helps them prioritize their effort on what matters most to your business.
+        </p>
+        <p>
+          This is not "cheating" or giving them hints. It's being strategic about where the most risk exists. The goal is not to trick the tester into finding things blindly. The goal is to get maximum security value from the engagement.
+        </p>
+
+        <h3>Request Testing Logs</h3>
+        <p>
+          This is one of the most important things you can do, and most clients never think to ask for it. Request that the tester provide logs or evidence of their testing activity. This could be Burp Suite project files, a summary of requests made, or a detailed activity log showing what was tested, when, and how.
+        </p>
+        <p>
+          If the report comes back empty, those logs let you verify that the tester actually spent meaningful time on your application. If someone says they tested for two weeks but the logs show three days of automated scanning and nothing else, you have your answer about why the report is empty.
+        </p>
+
+        <h3>Ask for a Debrief Call</h3>
+        <p>
+          A report should never arrive as a cold email with a PDF attached. At the end of any engagement, there should be a call where the tester walks you through the report, explains what they focused on, discusses areas they found interesting even if nothing was exploitable, and answers your questions directly.
+        </p>
+        <p>
+          A pentester who spent two weeks genuinely trying to break your application will have stories to tell, even if nothing was exploitable. That level of transparency is what separates a partner from a vendor.
+        </p>
+
+        <h2>What a Good Report Includes (Even When It's Clean)</h2>
+        <p>
+          An empty findings section should never mean an empty report. Even when no vulnerabilities are found, a quality report should include:
+        </p>
+        <ul>
+          <li><strong>Executive summary</strong> with a clear assessment of the overall security posture and business impact</li>
+          <li><strong>Detailed scope</strong> listing every endpoint, feature, and role that was tested</li>
+          <li><strong>Who tested and when</strong> with the tester's name or team and the exact testing period</li>
+          <li><strong>Methodology</strong> explaining the approach and frameworks followed</li>
+          <li><strong>Positive findings</strong> documenting which defenses held up and what your team got right</li>
+        </ul>
+        <p>
+          That last point is critical. If a report has no vulnerabilities <em>and</em> no positive findings, that is a direct indicator that the testing wasn't thorough. Think about it: if the tester genuinely tested your authorization model, your input validation, your session management, and found nothing wrong, they should be documenting that those controls are working correctly. Silence on that front means one of two things: they didn't test it, or they don't understand that acknowledging good work is part of the job.
+        </p>
+        <p>
+          Even experienced testers sometimes skip this section. But when they do, it signals a gap in their client relationship. Your security team needs to know what's working, not just what's broken. A pentester who doesn't provide that feedback is leaving you with an incomplete picture of your own security, and that's a disservice, even if it's unintentional.
+        </p>
+
+        <h2>Red Flags That Your Pentest Wasn't Thorough</h2>
+        <p>
+          After receiving a clean report, watch for these warning signs:
+        </p>
+        <ul>
+          <li>The methodology section is generic and could apply to any engagement</li>
+          <li>There's no mention of specific endpoints, features, or user flows that were tested</li>
+          <li>No positive findings or defensive observations are included</li>
+          <li>The tester never asked about user roles, business logic, or your main concerns</li>
+          <li>No evidence of manual testing, only automated scanner output</li>
+          <li>The tester cannot explain what they tried and why during the debrief</li>
+          <li>They can't provide any form of testing logs or activity evidence</li>
+        </ul>
+        <p>
+          If multiple items on this list apply, the empty report likely reflects the effort, not your security.
+        </p>
+
+        <h2>Preventing This Before It Happens</h2>
+        <p>
+          The best approach is to prevent the situation entirely. Here's a practical checklist before you sign any penetration testing contract:
+        </p>
+        <ol>
+          <li><strong>Research the tester's background.</strong> Check certifications (but verify depth beyond the badge), published work, blog posts, conference talks. Someone who actively contributes to the security community is more likely to deliver thorough work.</li>
+          <li><strong>Ask for a sample report.</strong> Most professional pentesters have anonymized sample reports. The structure and depth of a sample report tells you exactly what you'll receive.</li>
+          <li><strong>Define scope together.</strong> Don't just hand over a URL. Sit down and discuss what matters, what's new, what worries you.</li>
+          <li><strong>Agree on deliverables upfront.</strong> The contract should specify: detailed report with methodology, positive findings, testing logs, and a debrief call.</li>
+          <li><strong>Request periodic updates.</strong> For longer engagements, ask for brief status updates. A tester who's actively working will have things to report throughout the process.</li>
+        </ol>
+
+        <h2>The Bottom Line</h2>
+        <p>
+          An empty penetration test report is always empty for a reason. Your job is to figure out which reason before you've already spent the money.
+        </p>
+        <p>
+          A clean report from a thorough tester who documented their methodology, provided evidence of testing, highlighted your strong defenses, and walked you through their approach? That's genuinely good news. That means your security investment is paying off and you have a partner you can trust.
+        </p>
+        <p>
+          A clean report from someone you didn't vet, who can't explain what they tested, and whose deliverable reads like a template with your company name swapped in? That's not reassurance. That's a blind spot disguised as a clean bill of health.
+        </p>
+        <p>
+          The difference isn't in the report. It's in the research you do before hiring.
+        </p>
+        <p>
+          If you want to see what a thorough, transparent penetration test looks like, or if you just want a second opinion on your security, feel free to reach out on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> or through my <a href="../index.html#contact">contact form</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
