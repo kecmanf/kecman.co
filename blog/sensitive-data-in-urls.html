@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Why Sensitive Data Should Never Be in a URL | Filip Kecman</title>
+  <meta name="description" content="Tokens in query strings leak through the Referer header, third-party scripts, server logs, browser history, and more. How the Referrer-Policy works, what tawk.to sees, and what to do instead." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/sensitive-data-in-urls.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/sensitive-data-in-urls.html" />
+  <meta property="og:title" content="Why Sensitive Data Should Never Be in a URL" />
+  <meta property="og:description" content="Tokens in query strings leak through the Referer header, third-party scripts, server logs, browser history, and more. How the Referrer-Policy works and what to do instead." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-03-11" />
+
+  <meta property="article:section" content="Web Security" />
+  <meta property="article:tag" content="Referer Header" />
+  <meta property="article:tag" content="Referrer-Policy" />
+  <meta property="article:tag" content="Information Leakage" />
+  <meta property="article:tag" content="Web Security" />
+  <meta property="article:tag" content="OWASP" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Why Sensitive Data Should Never Be in a URL",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-03-11",
+    "description": "Tokens in query strings leak through the Referer header, third-party scripts, server logs, browser history, and more. How the Referrer-Policy works, what tawk.to sees, and what to do instead.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/sensitive-data-in-urls.html"
+    },
+    "keywords": ["sensitive data in URL", "Referer header", "Referrer-Policy", "information leakage", "password reset token", "OWASP", "web security", "penetration testing"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Why Sensitive Data Should Never Be in a URL" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Why Sensitive Data Should Never Be in a URL</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Web Security</span>
+          <span>March 11, 2026</span>
+          <span>9 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          Tokens in query strings. Session IDs in URL paths. API keys as parameters. It happens more often than it should, and the consequences go beyond what most developers expect. Once sensitive data enters a URL, it escapes through channels you don't control and often can't even see. The Referer header gets most of the attention, but it is only one of many leakage channels, and not even the most dangerous one.
+        </p>
+        <p>
+          This post covers exactly how that leakage happens, where the data ends up, and what to do instead.
+        </p>
+
+        <h2>The Referer Header: A Built-In Leak</h2>
+        <p>
+          When you click a link that takes you from one page to another, your browser includes a <code>Referer</code> header in the HTTP request to the destination. The value of this header is the URL of the page you just left.
+        </p>
+        <p>
+          Yes, "Referer" is a typo. It was misspelled in the original HTTP specification in 1996, and the typo stuck. The entire internet standardized around a spelling mistake. The newer <code>Referrer-Policy</code> header spells it correctly, which makes searching for documentation extra fun.
+        </p>
+        <p>
+          Here's what happens in practice:
+        </p>
+        <ol>
+          <li>A user is on <code>https://example.com/reset?token=a1b2c3d4</code></li>
+          <li>They click a link to <code>https://external-site.com/page</code></li>
+          <li>The browser sends: <code>Referer: https://example.com/reset?token=a1b2c3d4</code></li>
+        </ol>
+        <p>
+          The destination site now has the password reset token. No exploitation required. The browser handed it over as part of normal HTTP behavior.
+        </p>
+
+        <h2>Referrer-Policy: What Modern Browsers Actually Do</h2>
+        <p>
+          The good news: modern browsers no longer send the full URL by default on cross-origin requests.
+        </p>
+        <p>
+          Starting with Chrome 85 (August 2020) and Firefox 87 (March 2021), the default <code>Referrer-Policy</code> is <code>strict-origin-when-cross-origin</code>. Here's what that means:
+        </p>
+        <ul>
+          <li><strong>Same-origin requests:</strong> Full URL is sent (path + query string included).</li>
+          <li><strong>Cross-origin requests (same security level):</strong> The browser strips everything after the domain and only sends <code>https://example.com/</code>.</li>
+          <li><strong>Security downgrade (HTTPS to HTTP):</strong> No referrer sent at all.</li>
+        </ul>
+        <p>
+          So in the example above, with the default policy in a modern browser, <code>external-site.com</code> would only receive <code>https://example.com/</code>. The token is stripped. This is a meaningful improvement.
+        </p>
+        <p>
+          <strong>But here's the catch.</strong> If the source site explicitly sets:
+        </p>
+<pre><code>&lt;meta name="referrer" content="unsafe-url"&gt;</code></pre>
+        <p>
+          or sends the HTTP response header:
+        </p>
+<pre><code>Referrer-Policy: unsafe-url</code></pre>
+        <p>
+          then the browser sends the complete URL to every destination on every navigation. Path, query parameters, everything. Every third-party resource loaded by the page gets it too.
+        </p>
+        <p>
+          Full URL leakage via the Referer header requires the source site to actively opt in by overriding the browser default. In theory, sites that don't touch this setting are protected. In practice, I've seen <code>unsafe-url</code> quietly set by CMS plugins, marketing tools, and copy-pasted Stack Overflow snippets that nobody ever questioned.
+        </p>
+
+        <h3>A Correction: Element-Level referrerpolicy Does Override Document Policy</h3>
+        <p>
+          While researching this, I initially believed that a <code>referrerpolicy="unsafe-url"</code> attribute on an individual <code>&lt;a&gt;</code> tag would be insufficient to override a stricter document-level policy set via HTTP header. After digging into the W3C Referrer Policy specification, that turns out to be wrong.
+        </p>
+        <p>
+          The actual priority order is:
+        </p>
+        <ol>
+          <li><strong>Element-level</strong> <code>referrerpolicy</code> attribute, which takes the highest priority and applies only to requests from that specific element</li>
+          <li><strong>Document-level</strong> <code>&lt;meta name="referrer"&gt;</code> tag</li>
+          <li><strong>HTTP response header</strong> <code>Referrer-Policy</code></li>
+          <li><strong>Browser default</strong> (<code>strict-origin-when-cross-origin</code>)</li>
+        </ol>
+        <p>
+          This means if a page has <code>Referrer-Policy: strict-origin-when-cross-origin</code> set via the server, but a specific <code>&lt;a&gt;</code> tag has <code>referrerpolicy="unsafe-url"</code>, the browser <em>will</em> send the full URL for that specific navigation. The element-level attribute wins.
+        </p>
+        <p>
+          The practical implication: a single careless anchor tag can leak a full URL even on an otherwise well-configured page. Look for these during code review.
+        </p>
+
+        <h3>A Note on file:// URLs</h3>
+        <p>
+          I also tested this from local <code>file://</code> pages. No referrer is sent, but not because of <code>strict-origin-when-cross-origin</code>. Browsers treat the local filesystem as a special privacy context and suppress the referrer entirely for <code>file://</code> origins, regardless of any policy you set.
+        </p>
+
+        <h2>The Referer Header Is Not the Only Problem</h2>
+        <p>
+          Here's what most discussions of this topic miss. The Referer header is one leakage channel. It's arguably not even the most dangerous one.
+        </p>
+
+        <h3>Third-Party Scripts: Direct URL Access</h3>
+        <p>
+          Every piece of JavaScript running on the page can read <code>window.location.href</code> directly. It does not matter if the script is yours or comes from a third party. <code>Referrer-Policy</code> does <strong>nothing</strong> to prevent this.
+        </p>
+        <p>
+          This is where the real-world impact becomes concrete. Take <a href="https://www.tawk.to/" target="_blank" rel="noopener">tawk.to</a>, a widely used free live chat widget. tawk.to does exactly what it should: it shows the site owner which page each visitor is currently browsing. The full URL of the page appears in the site owner's dashboard.
+        </p>
+        <p>
+          Now imagine a visitor lands on:
+        </p>
+<pre><code>https://example.com/reset-password?token=a1b2c3d4e5f6</code></pre>
+        <p>
+          If tawk.to's widget is loaded on that page, the script reads <code>window.location.href</code> and sends it to tawk.to's servers. The site owner opens their dashboard and sees the complete URL with the reset token right there. tawk.to now has that token in their server logs.
+        </p>
+        <p>
+          This is not a vulnerability in tawk.to. It's working exactly as designed. The vulnerability is putting the token in the URL in the first place.
+        </p>
+        <p>
+          And it's not just tawk.to. <strong>Every</strong> third-party script loaded on the page has the same access:
+        </p>
+        <ul>
+          <li>Google Analytics / Google Tag Manager</li>
+          <li>Facebook Pixel</li>
+          <li>Hotjar, Mixpanel, Segment, Amplitude</li>
+          <li>Ad network tags</li>
+          <li>Any CDN-hosted library</li>
+          <li>Any embedded widget, chat tool, or support widget</li>
+        </ul>
+        <p>
+          Each one of these reads and transmits the URL to its own servers as part of standard operation. Your reset token, session ID, or API key is now sitting in a dozen different third-party databases, each with their own retention policy, access controls, and breach risk.
+        </p>
+
+        <h3>Server and Infrastructure Logs</h3>
+        <p>
+          Every component in the request path logs the full URL by default:
+        </p>
+        <ul>
+          <li><strong>Web server access logs:</strong> Apache, Nginx, IIS all log the full request URI including query strings.</li>
+          <li><strong>CDN logs:</strong> Cloudflare, AWS CloudFront, Fastly. If you use a CDN, there's another copy of every URL.</li>
+          <li><strong>Reverse proxy logs:</strong> HAProxy, Envoy, Traefik. Every layer adds another log.</li>
+          <li><strong>Load balancer logs:</strong> AWS ALB, GCP Load Balancer.</li>
+          <li><strong>WAF logs:</strong> In most configurations, web application firewalls log full request details including URLs. Some providers like Cloudflare may redact or omit query strings depending on the tier and settings, but you should not assume that by default.</li>
+        </ul>
+        <p>
+          That's potentially five or six copies of every token that ever traveled in a URL, spread across different systems with different access controls, different retention periods, and different teams who can read them.
+        </p>
+
+        <h3>Browser-Side Leakage</h3>
+        <ul>
+          <li><strong>Browser history:</strong> The URL is saved in the local history database. If the user has Chrome Sync or Firefox Sync enabled, it's uploaded to Google's or Mozilla's servers and synced across every device on that account.</li>
+          <li><strong>Autocomplete / address bar suggestions:</strong> The URL will appear as a suggestion when the user starts typing in the address bar.</li>
+          <li><strong>Bookmarks:</strong> If a user bookmarks the page, the full URL is stored and potentially synced.</li>
+          <li><strong>Shared links:</strong> Users copy URLs from the address bar to share them. They won't notice (or care about) a token in the query string.</li>
+          <li><strong>Screenshots and screen recordings:</strong> The address bar is visible in screen shares, presentations, and support tickets.</li>
+          <li><strong>Browser extensions:</strong> Any extension with the right permissions can read <code>window.location.href</code> on every page you visit, exactly the same way a third-party script can. The difference is that extensions run across all sites, not just the ones that loaded them.</li>
+        </ul>
+
+        <h3>Network-Level Leakage</h3>
+        <ul>
+          <li><strong>Corporate proxies:</strong> Many organizations route all HTTP(S) traffic through a proxy that performs TLS interception and logs full URLs.</li>
+          <li><strong>ISP transparent proxies:</strong> Less common with HTTPS, but still exists in some regions.</li>
+          <li><strong>Firewall audit logs:</strong> Enterprise firewalls routinely log full request URLs for compliance.</li>
+        </ul>
+
+        <h2>Real-World Vulnerability Classes</h2>
+        <p>
+          This isn't theoretical. Sensitive data in URLs is a well-documented vulnerability class that shows up in production applications constantly.
+        </p>
+
+        <h3>Password Reset Tokens</h3>
+        <p>
+          The most common case. Application sends a reset link via email:
+        </p>
+<pre><code>https://example.com/reset?token=a1b2c3d4e5f6</code></pre>
+        <p>
+          The user clicks the link. The reset page loads. So does Google Analytics, a chat widget, and a retargeting pixel. All three now have the token. If the user clicks any external link before submitting the form, the token may also travel in the Referer header, depending on the site's policy.
+        </p>
+
+        <h3>OAuth Authorization Codes and State Parameters</h3>
+        <p>
+          OAuth flows pass tokens in the URL by design:
+        </p>
+<pre><code>https://example.com/callback?code=AUTH_CODE&amp;state=STATE_TOKEN</code></pre>
+        <p>
+          The authorization code can be exchanged for an access token. If it leaks before the exchange, an attacker can complete the OAuth flow and gain access to the user's account. The <code>state</code> parameter is meant to prevent CSRF. If it leaks, that protection is gone.
+        </p>
+        <p>
+          PKCE (Proof Key for Code Exchange) mitigates the authorization code leakage specifically. The client generates a random <code>code_verifier</code> before the flow starts and sends a hash of it in the authorization request. When exchanging the code for a token, the client must present the original verifier. An attacker who intercepts the code but does not have the verifier cannot complete the exchange. The OAuth 2.1 draft makes PKCE mandatory for all clients, not just public ones. If your OAuth implementation does not use PKCE, the authorization code in the URL is a live credential that anyone in the leakage chain can use.
+        </p>
+
+        <h3>API Keys in Query Strings</h3>
+        <p>
+          Some APIs accept authentication via query parameters:
+        </p>
+<pre><code>https://api.example.com/data?api_key=sk_live_abc123</code></pre>
+        <p>
+          Every proxy, CDN, log aggregation service, and monitoring tool in the request path now has the API key. If the API doesn't restrict by IP or have usage limits, that key can be used by anyone who finds it in any of those logs.
+        </p>
+
+        <h3>OWASP Recognition</h3>
+        <p>
+          OWASP explicitly warns against this. The <a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener">Web Security Testing Guide (WSTG)</a> includes testing for sensitive information in URLs as part of its information leakage testing procedures. In the <a href="https://owasp.org/Top10/" target="_blank" rel="noopener">OWASP Top 10 2021</a>, this falls under <strong>A04:2021 Insecure Design</strong>, which covers sensitive data exposure through poor architectural decisions. It also touches <strong>A02:2021 Cryptographic Failures</strong>, specifically the failure to protect sensitive data in transit from unintended exposure.
+        </p>
+        <p>
+          If your application puts sensitive tokens in URLs, it will get flagged on any competent security assessment. This is not an edge case. It is a well-known, well-documented vulnerability class.
+        </p>
+
+        <h2>What to Do Instead</h2>
+
+        <h3>1. Use POST Bodies for Token Submission</h3>
+        <p>
+          Password reset tokens, authentication codes, and sensitive parameters should be submitted in the request body, not the URL:
+        </p>
+<pre><code>POST /reset-password HTTP/1.1
+Content-Type: application/json
+
+{
+  "token": "a1b2c3d4e5f6",
+  "new_password": "..."
+}</code></pre>
+        <p>
+          POST request bodies are not logged by web servers in their default configuration, not sent in the Referer header, and not stored in browser history.
+        </p>
+
+        <h3>2. Use the Authorization Header for API Authentication</h3>
+        <p>
+          For API authentication, use the <code>Authorization</code> header:
+        </p>
+<pre><code>GET /api/data HTTP/1.1
+Authorization: Bearer sk_live_abc123</code></pre>
+        <p>
+          HTTP headers are not part of the URL. They're not logged by default in most server configurations, not leaked through the Referer header, and not stored in browser history or bookmarks.
+        </p>
+
+        <h3>3. If GET Must Be Used: Short-Lived and Single-Use</h3>
+        <p>
+          Sometimes a GET request with a token in the URL is unavoidable. Email password reset links need to be clickable, and email clients don't support POST requests. When you can't avoid it:
+        </p>
+        <ul>
+          <li><strong>Make tokens short-lived.</strong> A password reset token should expire in 15 to 30 minutes, not 24 hours.</li>
+          <li><strong>Make tokens single-use.</strong> Invalidate the token immediately on first use. Even if it leaks after that, it's worthless.</li>
+          <li><strong>Redirect immediately.</strong> When the server receives the GET request with the token, validate it, establish a session, and 302 redirect to a clean URL (<code>/reset-password</code> with no query parameters). Don't render a page with third-party scripts while the token is still in the address bar.</li>
+          <li><strong>Set a restrictive Referrer-Policy on sensitive pages.</strong> Any page that handles tokens should send <code>Referrer-Policy: no-referrer</code> explicitly instead of relying on the browser default.</li>
+          <li><strong>Minimize third-party scripts.</strong> A password reset page should not load analytics, chat widgets, or marketing pixels. Strip everything that isn't essential to the reset flow.</li>
+        </ul>
+
+        <h3>4. Audit Your Pages</h3>
+        <p>
+          Open your browser's DevTools, go to the Network tab, and load your password reset page. Count the third-party domains. Every one of them can read <code>window.location.href</code>. Ask yourself whether each of them needs to be there.
+        </p>
+        <p>
+          Then check your server logs. Search for URLs containing tokens. You will almost certainly find them, and when you do, you have a retention and access control problem to address on top of the application fix.
+        </p>
+
+        <h2>The Bottom Line</h2>
+        <p>
+          Sensitive data in URLs is one of those issues that feels like it should be obvious, but it keeps showing up in production. The leakage surface is wide: Referer headers, third-party JavaScript, server logs, CDN logs, browser history, proxy logs, screen recordings, shared links. Once a token enters a URL, you've lost control over where it ends up.
+        </p>
+        <p>
+          The modern <code>strict-origin-when-cross-origin</code> default only protects against Referer header leakage on cross-origin navigation. It does nothing for all the other channels listed above.
+        </p>
+        <p>
+          The fix is straightforward: keep secrets out of URLs. Use POST bodies, use Authorization headers, and when you can't avoid URL tokens, make them expire fast, die on first use, and redirect the user to a clean URL before anything else loads.
+        </p>
+        <p>
+          Not sure if your application is leaking sensitive data through URLs? I will review your Referrer-Policy configuration and check for exposed tokens across your public-facing pages at no cost. If you want a deeper look at your information leakage surface, you can book a short call and we will figure out what makes sense for your setup. Reach out on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> or through the <a href="../index.html#contact">contact form</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
