@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Supply Chain Attacks in Modern Software Development: The Axios Incident | Filip Kecman</title>
+  <meta name="description" content="Axios, with 83 million weekly downloads, was compromised. Versions 1.14.1 and 0.30.4 silently installed a RAT via a postinstall hook. Here is how to check if your machine is affected and what to do." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/axios-supply-chain-attack.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/axios-supply-chain-attack.html" />
+  <meta property="og:title" content="Supply Chain Attacks in Modern Software Development: The Axios Incident" />
+  <meta property="og:description" content="Axios, with 83 million weekly downloads, was compromised. Versions 1.14.1 and 0.30.4 silently installed a RAT via a postinstall hook. Here is how to check if your machine is affected and what to do." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-03-31" />
+
+  <meta property="article:section" content="Pentesting" />
+  <meta property="article:tag" content="Supply Chain Attack" />
+  <meta property="article:tag" content="npm" />
+  <meta property="article:tag" content="Axios" />
+  <meta property="article:tag" content="Incident Response" />
+  <meta property="article:tag" content="AI Coding Agents" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Supply Chain Attacks in Modern Software Development: The Axios Incident",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-03-31",
+    "description": "Axios, with 83 million weekly downloads, was compromised. Versions 1.14.1 and 0.30.4 silently installed a RAT via a postinstall hook. Here is how to check if your machine is affected and what to do.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/axios-supply-chain-attack.html"
+    },
+    "keywords": ["supply chain attack", "npm", "axios", "postinstall", "RAT", "incident response", "AI coding agents", "Claude Code", "developer security"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Supply Chain Attacks in Modern Software Development: The Axios Incident" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Supply Chain Attacks in Modern Software Development: The Axios Incident</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Pentesting</span>
+          <span>March 31, 2026</span>
+          <span>13 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+
+        <p>
+          Software development runs on trust. Trust that the package you are installing does what it says on the tin. That the maintainers are who they claim to be. That the npm registry has not been trojaned. Supply chain attacks strike directly at that foundation, and the recent Axios incident is a perfect illustration of why this is one of the most dangerous threats facing modern software development.
+        </p>
+
+        <h2>What Are Supply Chain Attacks?</h2>
+
+        <p>
+          A supply chain attack does not target your code directly. Instead, the attacker compromises the tools, libraries, or processes that your code depends on. The results are devastating precisely because the attack travels through legitimate channels: signed packages, trusted registries, widely-used libraries.
+        </p>
+        <p>
+          A modern Node.js application can have hundreds of transitive dependencies, each maintained by individuals or small teams, often without any formal security review. npm alone hosts over 2.5 million packages. Most developers install them with a single command and zero scrutiny. That blind trust is the attack surface.
+        </p>
+        <p><strong>Why supply chain attacks are so dangerous:</strong></p>
+        <ul>
+          <li>The attacker bypasses your application's security by striking before your code even runs</li>
+          <li>A legitimate package containing malicious code passes through the same review processes as the original - or none at all</li>
+          <li>One compromised package can hit millions of developers simultaneously</li>
+          <li>Detection is extremely difficult because the attack originates from a trusted source</li>
+        </ul>
+
+        <h2>Anatomy of the Axios Attack</h2>
+
+        <p>
+          In March 2026, the security community identified a critical supply chain compromise affecting Axios - one of the most widely used HTTP client libraries in the JavaScript ecosystem with over <strong>83 million weekly downloads</strong>.
+        </p>
+        <p><strong>What happened:</strong></p>
+        <p>
+          A threat actor compromised a maintainer account with access to the Axios npm package. Using that access, they published two malicious versions: <strong>1.14.1</strong> and <strong>0.30.4</strong>. These versions introduced a new dependency called <code>plain-crypto-js</code> - an innocuous-sounding package with a single purpose: executing a Remote Access Trojan (RAT) on the developer's machine.
+        </p>
+        <p><strong>The mechanism:</strong></p>
+        <p>
+          The attack leveraged npm's <code>postinstall</code> lifecycle hook - a script that runs automatically after a package is installed. The malicious <code>postinstall</code> script inside <code>plain-crypto-js</code> downloaded and executed a RAT payload, then attempted to erase its own tracks by removing the script artifacts. By the time most developers noticed something was wrong, the damage was already done.
+        </p>
+        <p>This is a textbook supply chain attack:</p>
+        <ul>
+          <li><strong>Trusted vector:</strong> Axios is a legitimate, widely-audited library</li>
+          <li><strong>Credential compromise:</strong> The attacker did not need to find a code vulnerability - just steal one set of maintainer credentials</li>
+          <li><strong>Automatic execution:</strong> No user interaction was required; the RAT ran during a routine <code>npm install</code></li>
+          <li><strong>Anti-forensics:</strong> The malicious script self-deleted to complicate detection</li>
+        </ul>
+
+        <h2>The Hidden Risk of AI Coding Tools</h2>
+
+        <p>
+          Here is the part most security advisories miss: <strong>AI coding tools have made this significantly worse.</strong>
+        </p>
+        <p>
+          Tools like <strong>Claude Code</strong>, ChatGPT sandboxes, GitHub Copilot Workspace, and others routinely run <code>npm install</code> autonomously in the background. You describe a feature, the AI writes code, scaffolds a project, adds dependencies, and runs the installer without ever asking you. In an agentic workflow, the AI might install dozens of packages across multiple sessions before you review a single line of code.
+        </p>
+        <p>
+          If any of those packages contains a malicious <code>postinstall</code> script - as was the case with the Axios attack - the RAT executes silently on your development machine. Your machine. Your environment. Your SSH keys, API tokens, cloud credentials, <code>.env</code> files.
+        </p>
+        <p>
+          This is not theoretical. If your AI coding tool installed any npm package between when the malicious Axios versions went live and when they were taken down, you need to audit your environment right now.
+        </p>
+
+        <h2>Step-by-Step: How to Check if Your Machine Is Compromised</h2>
+
+        <h3>Step 1: Check for Malicious Axios Versions</h3>
+        <p>
+          Run the following command in any Node.js project directory on your machine:
+        </p>
+<pre><code>npm ls axios</code></pre>
+        <p>
+          You are looking for versions <strong>1.14.1</strong> or <strong>0.30.4</strong> in the output. If you see either of these, stop what you are doing and proceed to the remediation section below.
+        </p>
+        <p>
+          Also audit your lock files directly. Search for these version strings in <code>package-lock.json</code>, <code>yarn.lock</code>, or <code>pnpm-lock.yaml</code>:
+        </p>
+<pre><code>grep -r "axios" package-lock.json | grep "1\.14\.1\|0\.30\.4"</code></pre>
+        <p>Or for yarn or pnpm:</p>
+<pre><code>grep -A 1 "axios" yarn.lock | grep "1\.14\.1\|0\.30\.4"</code></pre>
+
+        <h3>Step 2: Check for the Malicious Dependency</h3>
+        <p>
+          The malicious versions inject a package called <code>plain-crypto-js</code>. Check if it exists anywhere in your dependency tree:
+        </p>
+<pre><code>npm ls plain-crypto-js</code></pre>
+        <p>
+          If this package appears anywhere, even as a transitive dependency, treat your system as compromised.
+        </p>
+        <p>You can also search globally across all your projects:</p>
+<pre><code>find ~/projects -name "package-lock.json" -exec grep -l "plain-crypto-js" {} \;</code></pre>
+
+        <h3>Step 3: Audit Your Lock Files Directly</h3>
+        <p>
+          Your lock files are the source of truth. Even if you have already run <code>npm install</code> since the incident, the version that was installed is recorded here. Search explicitly:
+        </p>
+<pre><code>grep "plain-crypto-js" package-lock.json
+grep '"version": "1.14.1"' package-lock.json</code></pre>
+
+        <h2>If You Found the Malicious Versions: Assume Total Machine Compromise</h2>
+
+        <p>
+          If your checks above returned a hit on Axios 1.14.1 or 0.30.4, or if <code>plain-crypto-js</code> appears anywhere in your dependency tree, you must <strong>assume your machine is fully compromised</strong>. Do not dismiss this as a false positive. Do not assume "the script probably did not run." Treat this as a confirmed breach and act accordingly.
+        </p>
+
+        <h3>1. Rotate Every Secret Immediately</h3>
+        <p>
+          Before touching anything else, assume all credentials stored on or accessed from this machine have been exfiltrated:
+        </p>
+        <ul>
+          <li><strong>SSH keys:</strong> Revoke and regenerate all SSH keys. Update them on GitHub, GitLab, Bitbucket, and any servers you access.</li>
+          <li><strong>Cloud credentials:</strong> Rotate all AWS access keys, GCP service account keys, Azure credentials. Check your cloud provider's IAM for unauthorized access or resource creation.</li>
+          <li><strong>API tokens:</strong> Revoke all API tokens - GitHub personal access tokens, npm tokens, CI/CD tokens, Stripe, Twilio, and anything else.</li>
+          <li><strong>Environment variables:</strong> Every <code>.env</code> file that has ever been open on this machine should be treated as compromised. Rotate all values.</li>
+          <li><strong>Browser sessions:</strong> Log out of all services and force session invalidation where possible.</li>
+          <li><strong>Password manager:</strong> If your master password was typed on this machine, change it and review for unauthorized logins.</li>
+        </ul>
+
+        <h3>2. Nuke node_modules and Reinstall Safely</h3>
+        <p>Remove the contaminated packages entirely:</p>
+<pre><code>rm -rf node_modules package-lock.json</code></pre>
+        <p>
+          Before reinstalling, pin Axios to a safe version in your <code>package.json</code>. Replace whatever version you have with:
+        </p>
+<pre><code>"axios": "1.14.0"</code></pre>
+        <p>Or for the 0.x branch:</p>
+<pre><code>"axios": "0.30.3"</code></pre>
+        <p>Then reinstall:</p>
+<pre><code>npm install</code></pre>
+
+        <h3>3. Pin Axios to a Safe Version</h3>
+        <p>
+          Use an exact version pin - remove the <code>^</code> or <code>~</code> prefix - to prevent automatic upgrades to future potentially malicious versions:
+        </p>
+<pre><code>npm install --save-exact axios@1.14.0</code></pre>
+
+        <h3>4. Disable postinstall Scripts Project-Wide</h3>
+        <p>
+          Create or edit <code>.npmrc</code> in your project root (or globally at <code>~/.npmrc</code>) and add:
+        </p>
+<pre><code>ignore-scripts=true</code></pre>
+        <p>
+          This prevents npm from running lifecycle scripts - including <code>postinstall</code>, <code>preinstall</code>, and <code>install</code> - automatically on every package. Note that this may break some legitimate packages that rely on build scripts. Audit which packages need scripts enabled and whitelist them explicitly.
+        </p>
+        <p>For Yarn:</p>
+<pre><code>yarn config set ignore-scripts true</code></pre>
+        <p>For pnpm, add to <code>.npmrc</code>:</p>
+<pre><code>ignore-scripts=true</code></pre>
+
+        <h2>Broader Lessons: Hardening Your Supply Chain</h2>
+
+        <p>
+          The Axios incident is not an anomaly - it is a preview. Supply chain attacks are increasing in frequency and sophistication. SolarWinds in 2020, ua-parser-js in 2021, node-ipc in 2022 - the pattern is clear and accelerating.
+        </p>
+        <p><strong>What you can do today:</strong></p>
+        <ul>
+          <li>Audit your dependencies regularly with <code>npm audit</code> and tools like <a href="https://socket.dev" target="_blank" rel="noopener">socket.dev</a> or Snyk</li>
+          <li><strong>Enable 2FA on your npm account</strong> - compromised maintainer credentials are the number one attack vector in this category</li>
+          <li>Use lockfiles and commit them to version control - they make version changes auditable and reviewable</li>
+          <li>Set <code>ignore-scripts=true</code> by default and only enable scripts for packages you have explicitly reviewed</li>
+          <li>Consider private registry mirrors (Verdaccio, Nexus) to snapshot known-good versions</li>
+          <li>Subscribe to security advisories - npm's security team and GitHub's Dependabot both publish timely alerts</li>
+        </ul>
+
+        <p>
+          The trust model of open-source package management is fundamentally broken when a single compromised npm account can push malicious code to 83 million weekly downloads. Until that changes at the ecosystem level, the responsibility falls on individual developers to audit what they are running.
+        </p>
+        <p>
+          If you want to talk through your project's dependency security posture or get a second pair of eyes on your CI/CD pipeline, reach out on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> or through the <a href="../index.html#contact">contact form</a>.
+        </p>
+
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
