@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>My CCPenX-AWS Review &amp; Experience | Filip Kecman</title>
+  <meta name="description" content="A review of The SecOps Group's Certified Cloud Pentesting eXpert for AWS (CCPenX-AWS) exam. Preparation, exam day experience, and advice for cloud pentesters." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/ccpenx-aws-review-experience.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/ccpenx-aws-review-experience.html" />
+  <meta property="og:title" content="My CCPenX-AWS Review & Experience" />
+  <meta property="og:description" content="A review of The SecOps Group's CCPenX-AWS exam. Preparation, exam day experience, and advice for cloud pentesters." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-04-24" />
+
+  <meta property="article:section" content="Career" />
+  <meta property="article:tag" content="CCPenX-AWS" />
+  <meta property="article:tag" content="The SecOps Group" />
+  <meta property="article:tag" content="AWS" />
+  <meta property="article:tag" content="Cloud Pentesting" />
+  <meta property="article:tag" content="Certification Review" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "My CCPenX-AWS Review and Experience",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-04-24",
+    "description": "A review of The SecOps Group's Certified Cloud Pentesting eXpert for AWS (CCPenX-AWS) exam. Preparation, exam day experience, and advice for cloud pentesters.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/ccpenx-aws-review-experience.html"
+    },
+    "keywords": ["CCPenX-AWS review", "The SecOps Group exam", "AWS penetration testing certification", "CCPenX-AWS experience", "cloud pentesting"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "My CCPenX-AWS Review and Experience" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>My CCPenX-AWS Review &amp; Experience</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Career</span>
+          <span>April 2026</span>
+          <span>5 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          I recently sat for The SecOps Group's <strong>Certified Cloud Pentesting eXpert for AWS (CCPenX-AWS)</strong> and passed on the first try. I had been meaning to formalise my AWS offensive security knowledge for a while, and this exam looked like the right shape. It's a practical CTF rather than a multiple choice quiz, and the scope is focused enough that you can prepare for it without months of study.
+        </p>
+
+        <figure style="text-align:center; margin: 40px auto; display: flex; justify-content: center;">
+          <img src="../CCPenX-AWS-badge.webp" alt="CCPenX-AWS certification badge" style="max-width: 420px; width: 100%;" loading="lazy" />
+        </figure>
+
+        <p>Now let's get into the preparation and the exam itself.</p>
+        <p>
+          As with any commercial exam, I am not allowed to leak any content or solutions, and I won't. What I can share is the path I took to get ready, how the exam day went for me, and what I wish I had known going in.
+        </p>
+
+        <h2>The Training</h2>
+        <p>
+          The CCPenX-AWS is focused on AWS as a platform. It's not a general pentesting exam. You will not need to pop a Windows box or write shellcode. It does assume that you already have solid web application pentesting experience.
+        </p>
+        <p>
+          The vendor's own page is pretty open about the areas that are in scope: enumeration across services like DNS, S3, EC2, VPC, IAM, CloudFront, EBS, EKS and Route 53, identity and access management, exploitation and lateral movement, and security hardening. That's a useful public checklist, but it is also quite wide, so let me share how I actually prepared.
+        </p>
+        <p>
+          The officially recommended prerequisites are around 5 years of professional pentesting experience and at least 12 months of cloud security experience. I think that is about right. If you are very early in your career, this is probably not the first exam I would aim for.
+        </p>
+        <p>
+          If I had to point at the areas you should be comfortable with before booking, it really comes down to a few broad buckets.
+        </p>
+
+        <h3>AWS IAM at a practical level</h3>
+        <p>
+          You should be able to reason about how AWS decides who is allowed to do what. If permissions, identities, and roles feel intuitive to you, you're in a good place.
+        </p>
+
+        <h3>AWS CLI fluency</h3>
+        <p>
+          You will live in your terminal for the whole exam, so mechanics matter. Being comfortable switching contexts and piping output around will save you a lot of time.
+        </p>
+
+        <h3>General familiarity with core AWS services</h3>
+        <p>
+          Enough that when you land in front of any common service, you know what questions to ask and where to look. You don't need to be an expert in everything. You need to not freeze when you see it.
+        </p>
+
+        <h3>Solid web application pentesting fundamentals</h3>
+        <p>
+          The exam assumes this, and a meaningful part of the path relies on it. If web pentesting is still new to you, I would start there before booking a cloud focused exam.
+        </p>
+
+        <h3>Resources</h3>
+        <p>For resources I'd recommend:</p>
+        <ul>
+          <li><a href="https://cloud.hacktricks.wiki/" target="_blank" rel="noopener">HackTricks Cloud</a> and <a href="https://hackingthe.cloud/" target="_blank" rel="noopener">Hacking The Cloud</a> for general reading. If you only read two sources before the exam, read these.</li>
+          <li><a href="https://github.com/RhinoSecurityLabs/cloudgoat" target="_blank" rel="noopener">CloudGoat</a> by Rhino Security Labs. Hands on, vulnerable AWS scenarios you spin up in your own account. Work through every scenario at least once.</li>
+          <li><a href="https://github.com/RhinoSecurityLabs/pacu" target="_blank" rel="noopener">Pacu</a>. Not necessarily because you'll use it during the exam, but because reading its modules teaches you what cloud enumeration actually looks like.</li>
+          <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html" target="_blank" rel="noopener">AWS's own documentation</a>, especially the IAM policy evaluation logic. Dry, but authoritative.</li>
+        </ul>
+
+        <p>
+          A lot of what I leaned on during the exam came from real world engagements. If you can do cloud work day to day before booking this exam, do it. There is no substitute for debugging a real IAM policy at 2 AM.
+        </p>
+
+        <h2>The Exam</h2>
+        <p>Let's dive in to the exam.</p>
+        <p>
+          The CCPenX-AWS is a 7.5 hour exam, delivered online and on demand. You connect to the exam environment over a VPN and work through a set of targets. The pass threshold is over 60%, and above 75% you get a merit on the certificate. There is also one free retake included with the exam fees, which takes a bit of pressure off the first attempt. One thing worth flagging for 2026: AI tools are not allowed during the exam, which in itself is a kind of useful constraint to train under, since you are forced to actually know what you are doing instead of prompting your way through it.
+        </p>
+        <p>
+          Unlike a 10 day exam where you can sleep on a problem, here the clock is loud. I worked intensely for about five hours of the 7.5, finished with a bit over two hours to spare, and didn't take a proper meal break. If you intend to sit for this, clear your schedule, warn everyone in your life, and be in front of the screen from the first minute.
+        </p>
+        <p>
+          I passed with a couple of flags unsolved, more on that in a second.
+        </p>
+
+        <h2>Mindset and Tips</h2>
+        <p>
+          The thing I kept getting punished for during the exam was over thinking.
+        </p>
+        <p>
+          Cloud pentesting has a specific trap. Because there are many services and the possible chains feel infinite, you can convince yourself that the answer must be some elaborate multi step pivot when in reality it's a small piece of information you already have but didn't notice. Twice during the exam I spent a long time building a sophisticated attack that was never going to work, when the intended path was visible early if I had read my own output more carefully.
+        </p>
+        <p>A few things I wish I had forced myself to do:</p>
+        <ul>
+          <li>Re read every response slowly before doing anything clever. The answer is often in the boring part of the output.</li>
+          <li>Write down what credentials you have and what each one can do. The exam is a graph, and losing track of nodes is how you waste time.</li>
+          <li>Pace yourself. The time feels long at hour one and very short at hour six. Stand up every hour, drink water, don't tunnel vision on a single flag.</li>
+          <li>If something doesn't work after 20 or 30 minutes, mark it and move on. You can come back later once you've made progress elsewhere.</li>
+        </ul>
+        <p>
+          The flags I didn't get, I lost them to this exact tunnel vision pattern. I convinced myself the intended attack was one specific class of bug and never seriously questioned whether a completely different piece of context I already had would have opened the door. A proper credentials inventory on the side would have caught this earlier.
+        </p>
+
+        <h2>What Actually Helped</h2>
+        <p>
+          The single thing that carried me through was fluency with the AWS CLI. Not memorising commands, nobody memorises every command by heart, but being comfortable enough that I could switch profiles, pipe into <code>jq</code>, and decode a JWT in my terminal without losing flow. Every chain comes back to the CLI, and every second you save on mechanics is a second you can spend thinking.
+        </p>
+        <p>
+          The second thing is being honest about what each piece of information means. Early on I had a bad habit of grabbing data and moving on, instead of stopping to ask what this specific field is telling me about the next step. Role ARNs, account IDs, region strings, and JWT claims are all free hints, and the exam rewards people who mine every output for everything it contains.
+        </p>
+        <p>
+          Finally, take the reporting side seriously. Even though this is a flag submission exam and you don't hand in a report, writing one afterwards as if it were a real engagement is the single best way to lock in what you learned. I did that the day after passing and it turned a "nice, I got the flags" into "now I actually understand why each attack worked".
+        </p>
+
+        <h2>Final Thoughts</h2>
+        <p>
+          The CCPenX-AWS is the best AWS focused offensive exam I've come across so far. It is practical end to end. No memorisation, no trick questions, just build a chain and find a flag. The base price is £400, and at the time of writing there is a 75% off code (<code>75-OFF</code>) that brings it down to £100, which is a genuine bargain for what you get.
+        </p>
+        <p>
+          If you're a web pentester or an AppSec engineer wanting to move sideways into cloud, this is a natural bridge. The web bugs you already know are still there, they just have AWS service consequences when you succeed. If you're already a cloud engineer and you want to validate the security side of your knowledge, this will stretch you in the right places.
+        </p>
+        <p>
+          I feel noticeably more confident walking into a cloud engagement now, which is the whole point of doing certifications in the first place.
+        </p>
+        <p>Stay tuned for more exam reviews and random hacking posts.</p>
+        <p>
+          Follow me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> to stay updated.
+        </p>
+        <p>Happy hacking!</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
