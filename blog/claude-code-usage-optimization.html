@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop | Filip Kecman</title>
+  <meta name="description" content="A lightweight LLMOps loop for Claude Code: ccusage for visibility, a Python ccreflect script that analyzes the most expensive sessions, and a weekly review workflow that turns insights into CLAUDE.md changes." />
+  <meta name="keywords" content="Claude Code, ccusage, LLMOps, Claude Max, CLAUDE.md, Anthropic, AI productivity, token usage, ccreflect" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/claude-code-usage-optimization.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/claude-code-usage-optimization.html" />
+  <meta property="og:title" content="How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop" />
+  <meta property="og:description" content="A lightweight LLMOps loop for Claude Code: surface inefficiencies with ccusage, analyze them with a reflection script, and feed the insights back into CLAUDE.md." />
+  <meta property="og:image" content="https://kecman.co/images/og-image.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-04-29" />
+
+  <meta property="article:section" content="Tools" />
+  <meta property="article:tag" content="Claude Code" />
+  <meta property="article:tag" content="ccusage" />
+  <meta property="article:tag" content="LLMOps" />
+  <meta property="article:tag" content="AI Productivity" />
+  <meta property="article:tag" content="Automation" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-04-29",
+    "description": "A lightweight LLMOps loop for Claude Code: ccusage for visibility, a Python ccreflect script that analyzes the most expensive sessions, and a weekly review workflow that turns insights into CLAUDE.md changes.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/claude-code-usage-optimization.html"
+    },
+    "keywords": ["Claude Code", "ccusage", "LLMOps", "CLAUDE.md", "AI productivity", "Anthropic", "ccreflect", "self-improving AI workflow"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Tools</span>
+          <span>2026-04-29</span>
+          <span>8 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          Most people using Claude Code on a Max subscription assume "unlimited" means "no need to think about usage." That assumption is expensive in a different way: not financially, but in terms of efficiency. The model can quietly burn through thousands of turns generating verbose outputs, serializing parallel work, and narrating its own actions before executing them. You never see a bill, so you never notice the waste.
+        </p>
+        <p>
+          I spent time building a system to surface these patterns, analyze them, and feed the insights back into my Claude Code configuration. This post covers the full architecture: what I built, why each piece exists, and how you can replicate it.
+        </p>
+
+        <h2>The Problem With Unlimited</h2>
+        <p>
+          When you pay per token, every inefficiency shows up on your invoice. On a flat-rate plan, the feedback loop disappears. The model can run 700 lines of nmap output directly into context on every turn, rerun the same structure-exploration Bash commands sequentially instead of in parallel, and write status narration before every tool call, and you will never see a direct signal that any of this is happening.
+        </p>
+        <p>
+          The inefficiency compounds differently than cost: longer sessions accumulate more context, which makes the model slower to reason about what matters, which causes more turns, which makes the session longer. The result is that a session that should have taken 40 turns takes 150.
+        </p>
+        <p>I needed visibility.</p>
+
+        <h2>Step One: ccusage</h2>
+        <p>
+          <a href="https://ccusage.com" target="_blank" rel="noopener">ccusage</a> is an open-source CLI tool that reads the JSONL files Claude Code writes locally to <code>~/.config/claude/projects/</code>. It does not send anything anywhere. All analysis is local, which matters for anyone doing client work.
+        </p>
+        <p>Installation is zero-friction:</p>
+        <pre><code>npx ccusage</code></pre>
+        <p>
+          The daily report gives you token counts and estimated USD costs per day, broken down by model. The session report is more useful:
+        </p>
+        <pre><code>npx ccusage session --breakdown</code></pre>
+        <p>
+          This shows you every conversation, what it cost in estimated pay-per-use terms, and which models handled what proportion of the work. When you see one session estimated at several times what you would expect, that is your signal to investigate.
+        </p>
+        <p>
+          The session report also reveals model distribution. If you see Opus handling routine file reads, grep searches, and boilerplate edits that Sonnet could manage equally well, that is a concrete inefficiency you can fix with a single CLAUDE.md line.
+        </p>
+
+        <h2>Step Two: Reading the JSONL Files Directly</h2>
+        <p>
+          ccusage gives you aggregate metrics. To understand <em>why</em> a session was expensive, you need to read the actual conversation. Claude Code stores every session as a JSONL file where each line is a JSON object representing one turn, including role, content, tool calls, and cost.
+        </p>
+        <p>I wrote a Python script called <code>ccreflect</code> that does three things:</p>
+        <ol>
+          <li>Calls <code>npx ccusage session --json</code> to find the most expensive sessions.</li>
+          <li>Locates the corresponding JSONL files and parses the conversation content, extracting user messages, assistant responses, and tool call sequences.</li>
+          <li>Builds a structured prompt from that content and sends it to Claude via <code>claude -p</code> for reflective analysis.</li>
+        </ol>
+        <p>
+          The analysis prompt asks Claude to do something specific: identify patterns in the conversation that caused high token usage, separate what the user did from what the model did, and produce concrete recommendations with target files (CLAUDE.md, skill files, or both).
+        </p>
+        <p>
+          The output is two files: a <code>LEARNINGS_*.md</code> report and a <code>CLAUDE_md_snippets.md</code> file with ready-to-paste additions for your configuration files.
+        </p>
+        <p>
+          This is the part that makes the system self-improving. The model analyzes its own sessions and produces instructions for future sessions.
+        </p>
+
+        <h2>What the Analysis Actually Found</h2>
+        <p>
+          Running ccreflect against my five most expensive sessions surfaced four consistent patterns.
+        </p>
+        <h3>Sequential tool calls that could be parallel</h3>
+        <p>
+          Build checks, linters, and test runners often have no dependency on each other. The model was firing them one by one, waiting for each to complete before starting the next. On a session with 200+ turns, this adds up significantly.
+        </p>
+
+        <h3>Raw tool output living in context</h3>
+        <p>
+          A full test suite run or a detailed dependency audit can produce thousands of lines of output. Keeping that in the active context means every subsequent turn processes it again as part of the cache read. The fix is straightforward: spool output to <code>./output/&lt;tool&gt;-&lt;timestamp&gt;.txt</code> and read slices as needed.
+        </p>
+
+        <h3>Narration before action</h3>
+        <p>
+          The model has a habit of writing a sentence describing what it is about to do before doing it. "The test suite appears to be failing on the auth module. Running the full test pass now." This is harmless in a single turn. Across 300 turns it contributes meaningfully to output token counts.
+        </p>
+
+        <h3>Opus on work that does not need Opus</h3>
+        <p>
+          Running searches across a codebase, reading config files, writing boilerplate, reformatting outputs: these do not require Opus-level reasoning. Sonnet handles them identically. The fix is a model selection rule in CLAUDE.md.
+        </p>
+
+        <h2>The Configuration Changes</h2>
+        <p>The analysis produced three targeted changes.</p>
+
+        <h3>code-analysis skill</h3>
+        <p>Added an Execution Rules section at the top of the skill file:</p>
+        <pre><code>## Execution Rules
+- Parallel by default. Fire all independent checks in one message block.
+  Never serialize linting + type checking + tests; they share no dependency.
+- Spool output. Save any tool output &gt;100 lines to ./output/&lt;tool&gt;-&lt;timestamp&gt;.txt.
+  Read slices with grep/Read. Never let raw output dumps live in context.
+- No narration before tool calls. One sentence after a finding, not before an action.</code></pre>
+
+        <h3>Global dev CLAUDE.md</h3>
+        <p>Added model selection defaults:</p>
+        <pre><code>## Model &amp; session defaults
+- Default model: Sonnet 4.6 for file edits, searches, builds, and routine code work.
+  Opus only for complex architecture decisions, algorithmic design, and hard reasoning tasks.
+  State the reason for escalating in one line.
+- Codebase exploration ("where is X", "understand this module") &rarr; spawn Explore subagent.
+  Do not Grep/Bash sequentially in the main thread.
+- Sessions expected &gt;50 turns: checkpoint to SESSION_STATE.md at turn 50.</code></pre>
+
+        <h3>Autonomous agent CLAUDE.md</h3>
+        <p>Added cost discipline rules that apply to any session running without continuous supervision:</p>
+        <pre><code>## Cost discipline
+- Budget: 80 turns, whichever comes first. At 60% of budget, write SESSION_STATE.md
+  and stop unless explicitly continued.
+- Independent checks run in parallel. Fire all in one message block.
+- Spool &gt;100 lines of tool output to ./output/. Do not let raw dumps live in context.</code></pre>
+
+        <p>
+          None of these changes reduce quality. The model still does everything it did before. The work just gets done with fewer tokens and in less wall-clock time.
+        </p>
+
+        <h2>The Automation Layer</h2>
+        <p>One analysis session is useful. A continuous feedback loop is better.</p>
+        <p>
+          I set up two cron jobs. The first runs ccreflect every morning at 9 AM, analyzing the past seven days of sessions and saving the report to <code>~/claude-tools/reflections/&lt;date&gt;/</code>. If the analysis finds expensive sessions or problematic patterns, macOS sends a local notification. No external services, no data leaving the machine.
+        </p>
+        <p>
+          The second cron job fires every Monday at 10 AM with a single notification: open a new Claude chat and ask it to read the reflections folder and propose CLAUDE.md changes.
+        </p>
+        <p>
+          The key design decision here is that the AI proposes, I decide. Fully automated CLAUDE.md changes would create a feedback loop with no human checkpoint. If the model makes a bad recommendation one week and it gets auto-applied, every session that week runs with that bad instruction. Human review adds maybe five minutes and eliminates that risk entirely.
+        </p>
+
+        <h2>The Weekly Review Workflow</h2>
+        <p>
+          Monday morning, you get the notification. You open a fresh Claude chat (not a long-running one, a fresh one with no accumulated context) and say:
+        </p>
+        <blockquote>
+          <p>"Read ~/claude-tools/reflections/ and propose changes to my CLAUDE.md files."</p>
+        </blockquote>
+        <p>
+          The model reads the weekly reports, identifies which patterns persisted, and surfaces two or three specific changes. You review them, apply what makes sense, discard what does not. Five minutes.
+        </p>
+        <p>
+          Fresh chat matters for this. A long-running chat carries context overhead. The review session should be lightweight by design.
+        </p>
+
+        <h2>The Broader Principle</h2>
+        <p>
+          What this system actually is: a lightweight LLMOps loop for a single-person setup. The same concepts that production teams apply to model monitoring and prompt iteration apply at the individual level, just with simpler tooling.
+        </p>
+        <p>
+          The JSONL files that Claude Code writes locally are underused by most people. They contain a complete record of every decision the model made, every tool it called, and every turn it took. That data is the input to a feedback loop if you choose to use it.
+        </p>
+        <p>
+          The ccreflect script is about 300 lines of Python. The cron setup is two lines. The CLAUDE.md changes are three small blocks of text. The infrastructure is minimal by design because the insight does the work, not the complexity.
+        </p>
+        <p>
+          If you work with Claude Code regularly and have not looked at your session data, start with <code>npx ccusage session</code>. The patterns you find will likely be specific to your workflow, not the generic ones I found in mine. That specificity is the point: the system tells you what to fix in your configuration, not someone else's.
+        </p>
+
+        <p>
+          <em>The full ccreflect script and installer are available on request. The ccusage tool is open source at <a href="https://github.com/ryoppippi/ccusage" target="_blank" rel="noopener">github.com/ryoppippi/ccusage</a>.</em>
+        </p>
+
+        <p>
+          Follow me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a> to stay updated.
+        </p>
+        <p>Happy hacking and prompting!</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

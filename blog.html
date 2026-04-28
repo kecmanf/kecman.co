@@ -12,6 +12,11 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Security Blog | Filip Kecman - Penetration Testing Insights</title>
   <meta name="description" content="Security blog by Filip Kecman. Penetration testing write-ups, vulnerability research, web and mobile security tips, and industry insights." />
   <meta name="robots" content="index, follow" />
@@ -72,6 +77,17 @@
 
       <!-- Blog Grid -->
       <div class="blog-grid">
+
+        <a href="blog/claude-code-usage-optimization.html" class="blog-card reveal" data-tags="tools career">
+          <div class="blog-meta">
+            <span class="blog-tag">Tools</span>
+            <span>2026-04-29</span>
+            <span>8 min read</span>
+          </div>
+          <h3>How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop</h3>
+          <p>A lightweight LLMOps loop for Claude Code: ccusage for visibility, a Python ccreflect script that analyzes the most expensive sessions, and a weekly review workflow that turns insights into CLAUDE.md changes.</p>
+          <span class="read-more">Read more <span class="arrow">&rarr;</span></span>
+        </a>
 
         <a href="blog/ccpenx-aws-review-experience.html" class="blog-card reveal" data-tags="career pentesting">
           <div class="blog-meta" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
