@@ -704,6 +704,21 @@ body::before {
    CERTIFICATIONS
    ============================================ */
 #certifications { background: var(--bg); }
+.certs-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 48px;
+}
+.certs-badges a img {
+  object-fit: contain;
+  transition: transform .2s;
+}
+.certs-badges a:hover img {
+  transform: scale(1.08);
+}
 .certs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
