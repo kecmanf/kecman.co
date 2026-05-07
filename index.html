@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.youtube.com; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
@@ -140,6 +140,7 @@
         <a href="#experience">Experience</a>
         <a href="#thefreesecurity">TFS</a>
         <a href="blog.html">Blog</a>
+        <a href="#speaking">Speaking</a>
         <a href="#contact" class="nav-cta">Contact</a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
@@ -560,6 +561,34 @@
 
       <div class="blog-all-link reveal">
         <a href="blog.html" class="btn btn-outline">View All Posts →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SPEAKING ==================== -->
+  <section id="speaking">
+    <div class="container">
+      <span class="section-label reveal">Speaking</span>
+      <h2 class="section-title reveal">Interviews &amp; Guest Talks</h2>
+      <p class="section-subtitle reveal">Sharing knowledge beyond the keyboard — from university podcasts to community talks.</p>
+
+      <div class="speaking-grid">
+        <div class="speaking-video reveal">
+          <iframe src="https://www.youtube.com/embed/gROtd3Wup9g" title="Etičko hakovanje - RAF Podcast" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="speaking-content reveal reveal-delay-1">
+          <div class="speaking-meta">
+            <span class="blog-tag">RAF Podcast</span>
+            <span style="font-size:.85rem;color:var(--text-muted);">🇷🇸 Serbian</span>
+          </div>
+          <h3>Ethical Hacking</h3>
+          <p>
+            I was invited as the first guest on the <a href="https://raf.edu.rs" target="_blank" rel="noopener">Računarski Fakultet (RAF)</a> podcast series — the same faculty where I worked as a Teaching Assistant. In this episode we covered the basics of ethical hacking: what penetration testing really means, the core divisions of cybersecurity, what my day-to-day looks like, and practical advice for anyone looking to break into the field.
+          </p>
+          <p>
+            We also discussed <strong>The Free Security</strong> — why I founded a non-profit providing free security assessments — and explored how artificial intelligence is impacting our industry and how we leverage it in our daily work.
+          </p>
+        </div>
       </div>
     </div>
   </section>
