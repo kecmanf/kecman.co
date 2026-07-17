@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>When a Web App Detects Burp Suite via TLS Fingerprinting | Filip Kecman</title>
+  <meta name="description" content="Bot detection increasingly fingerprints the TLS handshake itself, not just HTTP headers. Burp Suite's own outbound TLS stack doesn't look like a real browser's by default. How JA3/JA4 fingerprinting works, how the mismatch shows up, and the extension that fixes it." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/burp-suite-tls-fingerprint-bot-detection-bypass.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/burp-suite-tls-fingerprint-bot-detection-bypass.html" />
+  <meta property="og:title" content="When a Web App Detects Burp Suite via TLS Fingerprinting" />
+  <meta property="og:description" content="Burp Suite is a MITM proxy running two separate TLS connections. The second one has its own fingerprint, and modern bot detection notices. Here's how to spot it and fix it." />
+  <meta property="og:image" content="https://kecman.co/burp-cloudflare-blocked-hero.png" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-07-17" />
+
+  <meta property="article:section" content="Pentesting" />
+  <meta property="article:tag" content="Burp Suite" />
+  <meta property="article:tag" content="TLS" />
+  <meta property="article:tag" content="Bot Detection" />
+  <meta property="article:tag" content="Penetration Testing" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "When a Web App Detects Burp Suite via TLS Fingerprinting",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-07-17",
+    "description": "Bot detection increasingly fingerprints the TLS handshake itself, not just HTTP headers. Burp Suite's own outbound TLS stack doesn't look like a real browser's by default. How JA3/JA4 fingerprinting works, how the mismatch shows up, and the extension that fixes it.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/burp-suite-tls-fingerprint-bot-detection-bypass.html"
+    },
+    "keywords": ["JA3 fingerprint", "JA4 fingerprint", "Burp Suite", "TLS fingerprinting", "bot detection bypass", "penetration testing tooling"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "When a Web App Detects Burp Suite via TLS Fingerprinting" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>When a Web App Detects Burp Suite via TLS Fingerprinting</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Pentesting</span>
+          <span>July 17, 2026</span>
+          <span>11 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <figure style="text-align:center; margin: 0 0 32px 0;">
+          <img src="../burp-cloudflare-blocked-hero.png" alt="Diagram showing a browser sending a request through Burp Suite, which proxies it toward Cloudflare, whose TLS fingerprint check blocks it before it ever reaches the web app" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+        </figure>
+        <nav aria-label="Table of contents" style="border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 0 0 32px 0;">
+          <p style="font-weight: 700; margin: 0 0 12px 0; color: var(--accent);">What this post covers</p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><a href="#two-tls-connections">Two TLS connections, not one</a></li>
+            <li><a href="#what-a-tls-fingerprint-is">What a TLS fingerprint (JA3/JA4) actually is</a></li>
+            <li><a href="#how-this-shows-up">How this shows up without ever seeing a captcha</a></li>
+            <li><a href="#the-fix">The fix: Burp's Bypass Bot Detection extension</a></li>
+            <li><a href="#verifying-it-worked">Verifying it actually worked</a></li>
+            <li><a href="#live-test">A real, live test with real numbers</a></li>
+            <li><a href="#guaranteed-fix">Is there a guaranteed fix against exact matching?</a></li>
+            <li><a href="#why-it-matters">Why this matters for engagement methodology</a></li>
+          </ul>
+        </nav>
+        <p>
+          Modern bot detection doesn't just look at HTTP headers or behavior anymore. A lot of products now fingerprint the TLS handshake itself. That matters for anyone testing through Burp Suite, because Burp's proxying model means the traffic hitting the target server never actually has a browser's TLS fingerprint, regardless of what the <code>User-Agent</code> header claims. If a target's anti-bot layer checks for that mismatch, requests can get silently downgraded or rejected in ways that have nothing to do with the application itself, and they look, at first glance, exactly like a broken endpoint.
+        </p>
+
+        <h2 id="two-tls-connections">Two TLS connections, not one</h2>
+        <p>
+          It's easy to think of Burp as sitting transparently in the middle of a single connection. It doesn't. Burp is a MITM proxy running <strong>two independent TLS connections</strong>:
+        </p>
+        <ul>
+          <li><strong>Connection #1 (browser to Burp).</strong> Your real browser (Firefox, Chrome, whatever) does a real TLS handshake with Burp, believing it's talking directly to the target site.</li>
+          <li><strong>Connection #2 (Burp to the target server).</strong> Burp then opens its own, completely separate TLS connection to the actual server, using Burp's own TLS stack (Java's default <code>SSLContext</code> by default).</li>
+        </ul>
+        <p>
+          The server only ever sees connection #2. And critically: the HTTP headers riding on top of it (including <code>User-Agent: Firefox</code>) are forwarded unchanged from your browser. So the server reads a request that says "I am Firefox" in its headers, carried over a TLS handshake that very obviously isn't Firefox's. That mismatch is the whole bug.
+        </p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-mismatch-flagged.svg" alt="Diagram showing two separate TLS connections: browser-to-Burp and Burp-to-server, and how the second connection's fingerprint mismatches the forwarded User-Agent header, getting flagged by the target's anti-bot layer" style="max-width: 100%; border-radius: 8px; background:#fff;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">There's a fix for this. Keep reading.</figcaption>
+        </figure>
+
+        <h2 id="what-a-tls-fingerprint-is">What a TLS fingerprint (JA3/JA4) actually is</h2>
+        <p>
+          The <strong>ClientHello</strong> (the very first message of a TLS handshake, sent before any encryption is established) contains, in a specific order:
+        </p>
+        <ul>
+          <li>TLS version</li>
+          <li>the list of supported cipher suites, in the order the client prefers them</li>
+          <li>the list of TLS extensions (SNI, ALPN, supported groups/curves, signature algorithms, etc.), also in order</li>
+          <li>the ALPN protocol list (e.g. <code>h2, http/1.1</code>)</li>
+        </ul>
+        <p>
+          <strong>JA3</strong> is just an MD5 hash of that entire ordered structure. Every browser version and every TLS library, including Java's default stack, OpenSSL, BoringSSL, Go's <code>crypto/tls</code>, curl, and Python's <code>requests</code>, produces a slightly different, remarkably stable ordering. That stability is exactly what makes it useful for fingerprinting: a real Firefox install on ten different machines produces the same JA3, but Burp's Java-based TLS stack produces a completely different, well-known, trivially distinguishable one. HTTP/2 adds a second layer of the same idea (order of <code>SETTINGS</code> parameters and pseudo-headers, sometimes called an HTTP/2 or "Akamai" fingerprint), and JA4 extends the same concept with a few more signals baked in.
+        </p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-clienthello-anatomy.svg" alt="Diagram of the TLS ClientHello structure, showing how Firefox, Chrome, and Burp Suite's Java TLS stack order their TLS version, cipher suites, extensions, and ALPN list differently, producing three different JA3 hashes" style="max-width: 100%; border-radius: 8px; background:#fff;" loading="lazy" />
+        </figure>
+
+        <p>
+          None of this requires deep packet inspection or anything exotic on the server's side. Commercial bot-management products (Cloudflare Bot Management, Akamai Bot Manager, DataDome, PerimeterX/HUMAN, and plenty of in-house implementations) compute this on every incoming connection essentially for free, since the ClientHello is unencrypted by definition.
+        </p>
+
+        <h2 id="how-this-shows-up">How this shows up without ever seeing a captcha</h2>
+        <p>
+          A lot of bot-management products run an <strong>invisible, risk-based challenge</strong> in the background, think Cloudflare Turnstile or reCAPTCHA v3. These compute a risk score from signals like the TLS fingerprint on every request, and only ever surface an interactive widget if the score is bad enough to warrant one. Below that threshold, they just fail closed: the request gets rejected with a generic error, an auth flow silently breaks, or a session gets treated as untrusted, with no captcha ever shown, because the check that "failed" never needed to ask a human to prove anything. It just quietly decided the traffic wasn't a browser.
+        </p>
+        <p>
+          This is the pattern worth internalizing: if you see auth or session endpoints intermittently rejecting requests with vague, generic errors, and nothing changed functionally on your end, check the TLS fingerprint before assuming the endpoint itself is broken. It's a fast, easy thing to rule out, and it's increasingly common as more products build bot detection on JA3/JA4 rather than (or in addition to) purely behavioral signals.
+        </p>
+
+        <h2 id="the-fix">The fix: make Burp's outbound TLS handshake look like a browser's</h2>
+        <p>
+          The <a href="https://portswigger.net/bappstore/50fd63182afe43b7a3cf99b523f313f9" target="_blank" rel="noopener">Bypass Bot Detection</a> BApp (available in the BApp Store) works from a right click context menu on a host in Burp's Target scope: <strong>Extensions &rarr; Bypass Bot Detection</strong>, with three actions available:
+        </p>
+        <ul>
+          <li><strong>Adjust ciphers to common browsers</strong>, which reconfigures Burp's <strong>outbound</strong> TLS stack (connection #2 above) to offer a shorter, browser-typical cipher suite list instead of Burp's full default list</li>
+          <li><strong>Enable downgrade HTTP2</strong>, which forces an HTTP/2 to HTTP/1.1 downgrade, for targets whose detection is also picky about HTTP/2-level ordering</li>
+          <li><strong>Brute force ciphers</strong>, for pushing further toward a specific target fingerprint if the first option isn't enough</li>
+        </ul>
+        <p>
+          Enabling "Adjust ciphers to common browsers" moves connection #2's JA3 a long way toward what a real browser sends: far fewer cipher suites, in a more plausible order. Whether that ends up an exact byte-for-byte match of a specific browser's fingerprint, or just close enough to stop looking like an obvious automation tool, is worth actually checking rather than assuming, which is exactly what the next section does.
+        </p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-fix-before-after.svg" alt="Before and after diagram: Burp default flags Burp's own TLS fingerprint as a mismatch and gets blocked, while Burp with the Bypass Bot Detection extension moves the fingerprint much closer to a real browser's, so the invisible risk challenge is much more likely to pass" style="max-width: 100%; border-radius: 8px; background:#fff;" loading="lazy" />
+        </figure>
+
+        <h2 id="verifying-it-worked">Verifying it actually worked</h2>
+        <p>
+          Don't just trust that flipping the extension on fixed it. Confirm the fingerprint itself changed. A couple of quick ways to check:
+        </p>
+        <ul>
+          <li>Point Burp's upstream traffic at a JA3/JA4 echo service (e.g. <code>tls.peet.ws</code> or similar public fingerprint-check endpoints) with the extension off, note the fingerprint, then turn it on and confirm it now matches the browser profile you selected.</li>
+          <li>Capture the outbound ClientHello in Wireshark on both runs and diff the cipher suite / extension ordering directly if you want to see it at the byte level rather than trust a hash.</li>
+        </ul>
+        <p>
+          Once confirmed, re-test any flow that looked broken before enabling it. It's common for something that appeared to "always fail" to work perfectly once the traffic stops looking like an obviously proxied tool at the TLS layer.
+        </p>
+
+        <h2 id="live-test">What this actually looks like when you test it</h2>
+        <p>
+          Real numbers make this a lot more concrete than a description, so here's an actual run against <code>tls.peet.ws/api/all</code>: once with no proxy at all (real Firefox), once through Burp with no extension installed.
+        </p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-live-test-baseline-noproxy.png" alt="Screenshot of tls.peet.ws/api/all loaded directly in Firefox with no proxy, showing the real ja3 and ja3_hash values" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">No proxy, real Firefox: 15 cipher suites, ja3_hash <code>020ee54457b3c1d5f5a5050b22bee1f3</code></figcaption>
+        </figure>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-live-test-burp-default.png" alt="Screenshot of tls.peet.ws/api/all loaded through Burp Suite with no bypass extension installed, showing a much longer cipher suite list and a completely different ja3 and ja3_hash" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">Through Burp, no extension: 40+ cipher suites, ja3_hash <code>e5ba05202909ac1ea81e3f940a583d20</code></figcaption>
+        </figure>
+
+        <p>
+          The real Firefox connection offers 15 cipher suites, a clean, modern list. The Burp default connection offers around 49, including legacy suites like <code>61</code>, <code>60</code>, <code>53</code>, <code>47</code> and <code>255</code> that no modern browser would ever send. That's the "obviously not a browser" signature in practice, not just in theory.
+        </p>
+
+        <h3 id="with-extension">Now with the extension: closer, but honestly, not identical</h3>
+        <p>
+          The extension works from a right click menu on a host in Burp's Target scope. Choosing <strong>Extensions &rarr; Bypass Bot Detection &rarr; Adjust ciphers to common browsers</strong> and reloading the same page gives a third data point:
+        </p>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-live-test-extension-menu.png" alt="Burp Suite right click context menu on a host in Target scope, showing Extensions, Bypass Bot Detection, and the three available actions: Adjust ciphers to common browsers, Enable downgrade HTTP2, Brute force ciphers" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">Where the extension actually lives: right click a host in Target scope, not a global toggle.</figcaption>
+        </figure>
+
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../burp-tls-live-test-with-extension.png" alt="Screenshot of tls.peet.ws/api/all loaded through Burp with the Adjust ciphers to common browsers action applied, showing a much shorter cipher suite list and a new ja3 and ja3_hash" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">Through Burp, extension applied: 14 cipher suites, ja3_hash <code>b765f4534bce3740f769b0254478e9bd</code></figcaption>
+        </figure>
+
+        <p>
+          The cipher suite count drops from around 49 down to 14, right in the same range as the real Firefox connection's 15, and the legacy suites are gone. The extensions list also picks up <code>65281</code> (<code>renegotiation_info</code>), which the real Firefox connection sends too, and which Burp's unmodified default did not. That is a real, measurable improvement, not a cosmetic one.
+        </p>
+        <p>
+          What it is not: a byte-for-byte clone of this specific Firefox install. The cipher suite order and exact list still differ slightly, the extension order differs too, and the resulting <code>ja3_hash</code> (<code>b765f4534bce3740f769b0254478e9bd</code>) does not match either of the real Firefox captures above. For a detection system that does an exact JA3 allowlist match against known browser hashes, this might still not be enough. For a detection system that is really just checking "does this look like a small, modern, browser-shaped cipher list, or an obviously bloated automation tool list," this change is very likely enough on its own. The BApp's third action, <strong>Brute force ciphers</strong>, exists for exactly the gap between those two cases, worth reaching for if "Adjust ciphers to common browsers" alone doesn't get a specific target to stop flagging the traffic.
+        </p>
+        <p>
+          The honest takeaway: verify what a bypass actually achieves against your specific target, rather than assuming "the extension is on" means "the fingerprint now matches." Sometimes it will be close enough. Sometimes it won't be, and that's exactly the kind of thing a two minute JA3 check catches before it costs you an afternoon.
+        </p>
+
+        <h3 id="guaranteed-fix">Is there a guaranteed fix against a system doing an exact match?</h3>
+        <p>
+          No, and it's worth being upfront about that rather than overselling this. That question was worth actually digging into rather than assuming, so I went and checked how the major commercial products document their own use of JA3/JA4, instead of guessing. <a href="https://developers.cloudflare.com/bots/additional-configurations/ja3-ja4-fingerprint/" target="_blank" rel="noopener">Cloudflare</a>, <a href="https://www.akamai.com/blog/security/bots-tampering-with-tls-to-avoid-detection" target="_blank" rel="noopener">Akamai</a>, and DataDome, the three most widely deployed bot management products, all treat the TLS fingerprint as one signal that feeds into a combined bot score, not as a strict allowlist of exact approved hashes. Akamai's own blog describes scoring "how closely the TLS fingerprint matches expected browser behavior" as one input alongside HTTP/2 fingerprinting and handshake timing. DataDome layers the same idea on top of header ordering and behavioral signals. Cloudflare's Bot Management scores requests from 0 to 100 using JA4 as one of several inputs, and its own <a href="https://blog.cloudflare.com/ja4-signals/" target="_blank" rel="noopener">Signals Intelligence data</a> shows around 15 million distinct real JA4 fingerprints across 500 million+ genuine users in a single hour, which is itself proof that no serious vendor can require one single canonical hash to pass as human.
+        </p>
+        <p>
+          There's a good reason for that. Real browsers already don't produce one single stable fingerprint. Chrome has randomized the order of its TLS extensions since Chrome 110 (early 2023) specifically to prevent this exact kind of fingerprinting, which is part of why JA4 exists: it sorts extensions before hashing so that Chrome's own randomization doesn't make Chrome look like a moving target. Real world telemetry backs this up too: <a href="https://aws.amazon.com/blogs/networking-and-content-delivery/enhance-your-security-posture-and-reduce-false-positives-using-client-ja3-fingerprint-and-http-header-order/" target="_blank" rel="noopener">AWS documented a case</a> where one mobile app team saw their 403 error rate jump 6.3 percent after a routine network library update changed their app's TLS fingerprint, purely from legitimate users on new devices getting misclassified, until they adjusted their own HTTP/2 parameters. A vendor that hard matched against one exact hash would misclassify a meaningful slice of its own real, paying users every time a browser or OS shipped an update. That's precisely why none of the major products work that way.
+        </p>
+        <p>
+          So the honest answer is layered: there is no tool that can promise a bypass against a hypothetical system doing strict exact hash matching, because such a system would need to also tolerate the natural variation in the real traffic it's trying to let through, or it would be blocking its own users constantly. Against the products that actually exist in production today, getting close enough to look like a plausible, modern browser (which is what "Adjust ciphers to common browsers" achieves) is very likely sufficient, since that's what the scoring model is actually built to weigh, not an exact string comparison.
+        </p>
+
+        <h3 id="session-resumption-wrinkle">One wrinkle worth knowing before you test this yourself</h3>
+        <p>
+          Testing this twice in a row, without changing anything, can still produce two different <code>ja3_hash</code> values. Here's what that looked like on the same real Firefox, no proxy, back to back:
+        </p>
+<pre><code>1st connection: ...10-11-35-16-5-34-18-51-43-13-45-28-27-65037,...
+2nd connection: ...10-11-16-5-34-18-51-43-13-45-28-27-65037-41,...</code></pre>
+        <p>
+          Extension <code>35</code> is <code>session_ticket</code>. Extension <code>41</code> is <code>pre_shared_key</code>. On the first connection to a host, a TLS 1.3 client has no cached session, so it offers to set one up. On the second connection, it has a cached session ticket from the first one, so it offers that instead, to skip most of the handshake. The bytes on the wire genuinely differ between the two requests, so the JA3 hash genuinely differs too. This has nothing to do with a timestamp or anything random, and it happens for real browsers and for Burp's own TLS stack equally: it's plain TLS 1.3 behavior, not a quirk of any specific client.
+        </p>
+        <p>
+          Worth knowing going in, so a differing hash on a repeat test doesn't read as "the extension isn't working" when it's actually just session resumption doing its normal job.
+        </p>
+
+        <h2 id="why-it-matters">Why this matters for engagement methodology</h2>
+        <p>
+          A target's bot/anti-automation layer correctly flagging obviously-proxied traffic isn't a vulnerability. If anything, it's a mildly positive signal about the target's defenses. But it does mean that any finding built on top of "this endpoint always returns an error" needs a second look before it goes in a report: is that a real broken flow, or a tooling artifact from the TLS layer that has nothing to do with the application logic itself? Worth ruling out early, since it's the difference between a real finding and a wasted afternoon chasing a phantom bug in someone else's code that was actually just a fingerprint mismatch in your own proxy.
+        </p>
+
+        <p>
+          Thanks for reading! You can add me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>.
+        </p>
+        <p>Happy Hacking!</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

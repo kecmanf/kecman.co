@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="Arial, sans-serif">
+  <style>
+    .box { fill: #fff; stroke: #1a2b4c; stroke-width: 2; rx: 8; }
+    .box-bad { fill: #fff5f5; stroke: #b02a2a; stroke-width: 2; rx: 8; }
+    .box-alt { fill: #f5f8ff; stroke: #1a4c8b; stroke-width: 2; rx: 8; }
+    .hashbox { fill: #f2f2f2; stroke: #555; stroke-width: 1.5; rx: 6; }
+    .label { font-size: 14px; font-weight: 700; fill: #1a2b4c; }
+    .label-bad { font-size: 14px; font-weight: 700; fill: #b02a2a; }
+    .label-alt { font-size: 14px; font-weight: 700; fill: #1a4c8b; }
+    .small { font-size: 11.5px; fill: #333; }
+    .mono { font-family: "Courier New", monospace; font-size: 10.5px; fill: #333; }
+    .mono-bad { font-family: "Courier New", monospace; font-size: 10.5px; fill: #b02a2a; font-weight: 700; }
+    .section-title { font-size: 17px; font-weight: 800; fill: #1a2b4c; }
+    .arrow { stroke: #666; stroke-width: 2; marker-end: url(#arrow); fill: none; }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="660" fill="#f7f8fa"/>
+  <text x="30" y="35" class="section-title">Same TLS version, different ClientHello order, different fingerprint</text>
+
+  <!-- Firefox column -->
+  <rect x="30" y="60" width="290" height="330" class="box"/>
+  <text x="175" y="85" text-anchor="middle" class="label">Firefox ClientHello</text>
+  <text x="50" y="108" class="small">TLS version: 1.3</text>
+  <text x="50" y="130" class="small">Cipher suites (ordered):</text>
+  <text x="60" y="148" class="mono">4865, 4867, 4866, 49195,</text>
+  <text x="60" y="163" class="mono">49199, 52393, 52392, ...</text>
+  <text x="50" y="186" class="small">Extensions (ordered):</text>
+  <text x="60" y="204" class="mono">server_name,</text>
+  <text x="60" y="219" class="mono">extended_master_secret,</text>
+  <text x="60" y="234" class="mono">supported_groups,</text>
+  <text x="60" y="249" class="mono">session_ticket, key_share,</text>
+  <text x="60" y="264" class="mono">signature_algorithms, ...</text>
+  <text x="50" y="288" class="small">ALPN: h2, http/1.1</text>
+
+  <!-- Chrome column -->
+  <rect x="355" y="60" width="290" height="330" class="box-alt"/>
+  <text x="500" y="85" text-anchor="middle" class="label-alt">Chrome ClientHello</text>
+  <text x="375" y="108" class="small">TLS version: 1.3</text>
+  <text x="375" y="130" class="small">Cipher suites (ordered):</text>
+  <text x="385" y="148" class="mono">4865, 4866, 4867, 49195,</text>
+  <text x="385" y="163" class="mono">49199, 52393, 52392, ...</text>
+  <text x="375" y="186" class="small">Extensions (ordered):</text>
+  <text x="385" y="204" class="mono">server_name,</text>
+  <text x="385" y="219" class="mono">supported_groups,</text>
+  <text x="385" y="234" class="mono">ec_point_formats,</text>
+  <text x="385" y="249" class="mono">key_share, ALPN,</text>
+  <text x="385" y="264" class="mono">signature_algorithms, ...</text>
+  <text x="375" y="288" class="small">ALPN: h2, http/1.1</text>
+
+  <!-- Burp/Java column -->
+  <rect x="680" y="60" width="290" height="330" class="box-bad"/>
+  <text x="825" y="85" text-anchor="middle" class="label-bad">Burp Suite (Java) ClientHello</text>
+  <text x="700" y="108" class="small">TLS version: 1.3</text>
+  <text x="700" y="130" class="small">Cipher suites (ordered):</text>
+  <text x="710" y="148" class="mono">4866, 4867, 4865, 159,</text>
+  <text x="710" y="163" class="mono">158, 49196, 49195, ...</text>
+  <text x="700" y="186" class="small">Extensions (ordered):</text>
+  <text x="710" y="204" class="mono">supported_groups,</text>
+  <text x="710" y="219" class="mono">server_name,</text>
+  <text x="710" y="234" class="mono">signature_algorithms,</text>
+  <text x="710" y="249" class="mono">ec_point_formats,</text>
+  <text x="710" y="264" class="mono">session_ticket, ...</text>
+  <text x="700" y="288" class="small">ALPN: h2, http/1.1</text>
+
+  <!-- Arrows down to hash -->
+  <path d="M175,390 V430" class="arrow"/>
+  <path d="M500,390 V430" class="arrow"/>
+  <path d="M825,390 V430" class="arrow"/>
+
+  <rect x="105" y="430" width="140" height="36" class="hashbox"/>
+  <text x="175" y="453" text-anchor="middle" class="mono">JA3 = MD5(...)</text>
+
+  <rect x="430" y="430" width="140" height="36" class="hashbox"/>
+  <text x="500" y="453" text-anchor="middle" class="mono">JA3 = MD5(...)</text>
+
+  <rect x="755" y="430" width="140" height="36" class="hashbox"/>
+  <text x="825" y="453" text-anchor="middle" class="mono">JA3 = MD5(...)</text>
+
+  <path d="M175,466 V486" class="arrow"/>
+  <path d="M500,466 V486" class="arrow"/>
+  <path d="M825,466 V486" class="arrow"/>
+
+  <text x="175" y="505" text-anchor="middle" class="mono">579ccef312d1...</text>
+  <text x="500" y="505" text-anchor="middle" class="mono">b32309a26951...</text>
+  <text x="825" y="505" text-anchor="middle" class="mono-bad">3b5074b1b5d0...</text>
+
+  <rect x="30" y="540" width="940" height="100" class="box"/>
+  <text x="50" y="565" class="label">Why this works as a fingerprint</text>
+  <text x="50" y="590" class="small">Every install of the same browser version, on any machine, produces the same ordering, and therefore the same JA3 hash every single time.</text>
+  <text x="50" y="610" class="small">A different client or TLS library (like Burp's Java stack) orders and picks these fields differently, producing a different, recognizable hash.</text>
+  <text x="50" y="630" class="small">That is the entire mechanism: stable per client, distinct across clients, computed from a message sent before any encryption even starts.</text>
+</svg>
