@@ -1,6 +1,6 @@
 # Filip Kecman - Penetration Tester
 
-> Penetration tester with 5+ years of experience and 200+ security projects completed. Specializing in web application security, mobile app pentesting, API security assessments, cloud security, and secure code review. Based in Belgrade, Serbia, working worldwide.
+> Penetration tester with 5+ years of experience and 230+ security projects completed. Specializing in web application security, mobile app pentesting, API security assessments, cloud security, and secure code review. Based in Belgrade, Serbia, working worldwide.
 
 ## About
 
