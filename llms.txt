@@ -25,7 +25,8 @@ Filip follows industry-standard methodologies including OWASP WSTG (Web Security
 
 ## Experience
 
-- Penetration Tester at SecureIT (2025 - Present)
+- Penetration Tester at OnSecurity (August 2026 - Present)
+- Penetration Tester at SecureIT (2025 - July 2026)
 - Teaching Assistant at Faculty of Computing, Belgrade (2024 - 2026)
 - Penetration Tester at UN1QUELY (2023 - 2025)
 - Freelance Penetration Tester (2021 - Present)
