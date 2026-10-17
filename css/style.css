@@ -998,7 +998,8 @@ a.cert-card {
   line-height: 1.7;
   flex: 1;
 }
-.blog-card .read-more {
+.blog-card .read-more,
+.cve-card .read-more {
   margin-top: 18px;
   font-size: .85rem;
   font-weight: 600;
@@ -1007,10 +1008,12 @@ a.cert-card {
   align-items: center;
   gap: 6px;
 }
-.blog-card .read-more .arrow {
+.blog-card .read-more .arrow,
+.cve-card .read-more .arrow {
   transition: transform .2s;
 }
-.blog-card:hover .read-more .arrow {
+.blog-card:hover .read-more .arrow,
+.cve-card:hover .read-more .arrow {
   transform: translateX(4px);
 }
 
@@ -1370,3 +1373,48 @@ a.cert-card {
   background: var(--accent);
   color: #fff;
 }
+
+
+/* ---------- Research / CVEs ---------- */
+.cve-list { display: flex; flex-direction: column; gap: 20px; max-width: 760px; }
+.cve-card {
+  position: relative;
+  display: block;
+  padding: 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.cve-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  color: var(--text);
+}
+.cve-badge {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 4px 12px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+.cve-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 8px; }
+.cve-head h3 { font-size: 1.5rem; margin: 0; }
+.cve-severity {
+  padding: 3px 10px;
+  font-size: .8rem;
+  color: #f5c542;
+  border: 1px solid rgba(245,197,66,.4);
+  border-radius: 6px;
+}
+.cve-title { font-weight: 600; margin-bottom: 8px; }
+.cve-desc { color: var(--text-muted); margin-bottom: 14px; }
+.cve-more { color: var(--text-muted); font-style: italic; }
