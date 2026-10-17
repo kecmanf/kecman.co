@@ -737,6 +737,10 @@ body::before {
   color: var(--accent);
   text-decoration: underline;
 }
+span.cert-badge-label:hover {
+  color: var(--text-muted);
+  text-decoration: none;
+}
 .certs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

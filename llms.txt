@@ -1,10 +1,10 @@
 # Filip Kecman - Penetration Tester
 
-> Penetration tester with 5+ years of experience and 230+ security projects completed. Specializing in web application security, mobile app pentesting, API security assessments, cloud security, and secure code review. Based in Belgrade, Serbia, working worldwide.
+> Penetration tester with 5+ years of experience and 250+ security projects completed. Specializing in web application security, mobile app pentesting, API security assessments, cloud security, and secure code review. Based in Belgrade, Serbia, working worldwide.
 
 ## About
 
-Filip Kecman is a professional penetration tester and security consultant. He holds the following certifications: CCPenX-AWS (Certified Cloud Pentesting eXpert for AWS, The SecOps Group), CWEE (Certified Web Exploitation Expert, Hack The Box), CWES (Certified Web Exploitation Specialist, Hack The Box), eWPTX (Web Application Penetration Tester eXtreme, INE Security), eMAPT (Mobile Application Penetration Tester, INE Security), and eJPT (Junior Penetration Tester, eLearnSecurity). He is currently pursuing the OSWE (OffSec Web Expert) certification.
+Filip Kecman is a professional penetration tester and security consultant. He holds the following certifications: CCPenX-AWS (Certified Cloud Pentesting eXpert for AWS, The SecOps Group), CWEE (Certified Web Exploitation Expert, Hack The Box), CWES (Certified Web Exploitation Specialist, Hack The Box), CPTS (Certified Penetration Testing Specialist, Hack The Box), COAE (Certified Offensive AI Expert, Hack The Box), eWPTX (Web Application Penetration Tester eXtreme, INE Security), eMAPT (Mobile Application Penetration Tester, INE Security), and eJPT (Junior Penetration Tester, eLearnSecurity). He is currently pursuing the OSWE (OffSec Web Expert) certification.
 
 Filip is the CEO and Founder of The Free Security (https://thefreesecurity.com), a non-profit organization providing free penetration tests to organizations that need them. He also serves as a Teaching Assistant at the Faculty of Computing in Belgrade.
 
