@@ -21,8 +21,9 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/inner.css" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -33,19 +34,21 @@
     </div>
   </nav>
 
-  <div class="page-404" style="text-align:center;">
+  <main class="page-404 message-sent">
     <div>
-      <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
-      <h2 style="font-size: 2rem; margin-bottom: 12px;">Message sent!</h2>
-      <p style="color: var(--text-muted); max-width: 440px; margin: 0 auto 32px;">
+      <div class="success-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="29" stroke="currentColor" stroke-width="1.5"/><circle cx="32" cy="32" r="22" stroke="currentColor" stroke-width="1" opacity=".35"/><path d="m21 32 7 7 15-16" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h1>Message sent!</h1>
+      <p>
         Thank you for reaching out. I typically reply within 24 hours. In the meantime, feel free to check out my blog or connect on LinkedIn.
       </p>
-      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+      <div class="message-actions">
         <a href="index.html" class="btn btn-primary">Back to Home</a>
         <a href="blog.html" class="btn btn-outline">Read the Blog</a>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="js/main.js"></script>
 </body>

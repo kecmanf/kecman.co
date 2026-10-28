@@ -35,8 +35,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/inner.css" />
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -49,6 +50,7 @@
         <a href="index.html#about">About</a>
         <a href="index.html#approach">Approach</a>
         <a href="index.html#certifications">Certs</a>
+        <a href="index.html#research">Research</a>
         <a href="index.html#experience">Experience</a>
         <a href="index.html#thefreesecurity">TFS</a>
         <a href="blog.html" class="active">Blog</a>
@@ -91,6 +93,17 @@
           </div>
           <h3>When a Web App Detects Burp Suite via TLS Fingerprinting</h3>
           <p>Burp runs two separate TLS connections, and the outbound one has its own JA3 fingerprint. How that mismatch silently triggers invisible bot challenges, and the extension that fixes it.</p>
+          <span class="read-more">Read more <span class="arrow">&rarr;</span></span>
+        </a>
+
+        <a href="blog/android-deep-links-security.html" class="blog-card reveal" data-tags="mobile-security pentesting">
+          <div class="blog-meta">
+            <span class="blog-tag">Mobile Security</span>
+            <span>2026-07-10</span>
+            <span>17 min read</span>
+          </div>
+          <h3>Android Deep Links: How They Break, and How to Test Them</h3>
+          <p>A real Android deep-link demo with vulnerable and hardened Kotlin apps: WebView token leaks, intent redirection, path traversal, and the fixes that stop them.</p>
           <span class="read-more">Read more <span class="arrow">&rarr;</span></span>
         </a>
 
