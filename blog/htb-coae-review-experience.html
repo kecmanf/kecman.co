@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>My Hack The Box COAE Review and Experience | Filip Kecman</title>
+  <meta name="description" content="A review of the Hack The Box Certified Offensive AI Expert (COAE) exam. What the training covers, how to prepare, and how it compares to CWES, CWEE and CPTS." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/htb-coae-review-experience.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/htb-coae-review-experience.html" />
+  <meta property="og:title" content="My Hack The Box COAE Review and Experience" />
+  <meta property="og:description" content="A review of the Hack The Box Certified Offensive AI Expert (COAE) exam. What the training covers, how to prepare, and how it compares to CWES, CWEE and CPTS." />
+  <meta property="og:image" content="https://kecman.co/filip-kecman.jpg" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-11-09" />
+
+  <meta property="article:section" content="Career" />
+  <meta property="article:tag" content="COAE" />
+  <meta property="article:tag" content="Hack The Box" />
+  <meta property="article:tag" content="AI Red Teaming" />
+  <meta property="article:tag" content="Certification Review" />
+  <meta property="article:tag" content="Penetration Testing" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "My Hack The Box COAE Review and Experience",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-11-09",
+    "description": "A review of the Hack The Box Certified Offensive AI Expert (COAE) exam. What the training covers, how to prepare, and how it compares to CWES, CWEE and CPTS.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/htb-coae-review-experience.html"
+    },
+    "keywords": ["COAE review", "Hack The Box exam", "AI red teaming certification", "COAE experience", "offensive AI testing"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "My Hack The Box COAE Review and Experience" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/inner.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#research">Research</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>My Hack The Box COAE Review &amp; Experience</h1>
+        <div class="blog-meta" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <img src="../coae_badge.webp" alt="COAE - Certified Offensive AI Expert badge" style="width:48px; height:48px; object-fit:contain;" loading="lazy" />
+          <span class="blog-tag">Career</span>
+          <span>November 2026</span>
+          <span>6 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+        <p>
+          My <strong>Certified Offensive AI Expert (COAE)</strong> from Hack The Box is done. I passed it back in September, and between finishing it and finding time to sit down and write about it, it's now November. I still want to put this one in writing while enough of it is fresh, both for anyone deciding whether to sit it and for my own record, since I'm planning a small series comparing the Hack The Box certifications I hold.
+        </p>
+
+        <figure style="margin: 40px 0;">
+          <img src="../coae-exam-complete.webp" alt="Filip Kecman's Hack The Box COAE - Certified Offensive AI Expert certificate" style="max-width:100%; border-radius:8px;" loading="lazy" />
+        </figure>
+
+        <p>
+          As with every commercial exam, I'm not allowed to say anything about its actual content, and I won't. What I can share is what the training teaches, what you should already know going in, and honestly, how hard I found it compared to the other Hack The Box certifications on my shelf.
+        </p>
+        <p>
+          I already had a fair amount of experience testing AI through my career before I booked this one, so I went in less as a beginner and more to formalise and validate what I already knew. Keep that in mind as you read the rest of this, since it shapes how I experienced the exam.
+        </p>
+
+        <h2>The Training</h2>
+        <p>
+          Offensive AI testing, meaning how you probe AI systems and the applications built around them for weaknesses, is a newer discipline inside penetration testing. Hack The Box built a full training path for it on HTB Academy before putting the COAE exam behind it, the same approach they took with the Certified Web Exploitation Specialist (CWES) and the Certified Web Exploitation Expert (CWEE).
+        </p>
+        <p>
+          To be honest, the materials genuinely cover everything you need. I went through the whole path and didn't have to go looking for outside resources to feel ready, which isn't something I can say about every certification I've prepared for. Go through it properly, module by module, instead of skimming for the exam, and you'll walk in with what you need.
+        </p>
+        <p>
+          What you should already have before you start is a solid base in how web applications work and how to test them, since a lot of offensive AI testing is really web application testing with an AI layer sitting on top of it. Beyond that, the training builds the rest from the ground up, so you don't need to arrive as an AI specialist.
+        </p>
+        <p>
+          There were a few examples on the exam itself that genuinely stuck with me. I won't go into what they were, but they're a good sign of how realistic the scenarios are built, and they made the whole thing a genuinely interesting test to sit, not just a box to tick.
+        </p>
+
+        <h2>How It Compares</h2>
+        <p>
+          This is the part people actually ask me about anyway: how hard is it?
+        </p>
+        <p>
+          If I compare it against the other Hack The Box certifications I hold, I'd place COAE somewhere between CWES and CWEE in difficulty. It leans closer to CWEE than to CWES, but it's a clear step down from the Certified Penetration Testing Specialist (CPTS). CPTS is still the hardest certification I've done, by some distance, and that one deserves its own post, which is coming.
+        </p>
+        <p>
+          Honestly, for me personally, the COAE exam itself wasn't particularly hard. I came into it after years of web application testing experience, which carried over directly. If you're earlier in your career, give yourself more runway than I needed, the comparison above is relative to where I was standing, not an absolute scale.
+        </p>
+
+        <figure style="margin: 40px 0;">
+          <img src="../coae-difficulty-ladder.webp" alt="COAE placed between CWES and CWEE in difficulty, with CPTS well above both" style="max-width:100%; border-radius:8px;" loading="lazy" />
+        </figure>
+
+        <h2>Why Testing AI Is Interesting</h2>
+        <p>
+          Testing AI is a genuinely interesting part of this job, and not for the reasons people usually assume. An AI model is, in a lot of ways, a simulation of a human. It reasons in language, it can be persuaded, it can be led, and it reacts to context the way a person does. The human is the weakest link in any chain, every pentester learns that early, and now that same weakness is being built into software and shipped at scale.
+        </p>
+        <p>
+          AI is used everywhere now, in almost every product and workflow I come across. In my opinion that only increases the attack surface across the board, it doesn't shrink it. I also don't think AI reduces the amount of workforce needed. It changes what the work looks like and how it gets done, the same as every real innovation before it. The job doesn't disappear, it moves.
+        </p>
+
+        <h2>Final Thoughts</h2>
+        <p>
+          I wouldn't call COAE advanced, that's just my opinion. I'd place it as a good starting point for someone who wants to get into AI security, rather than a certification for someone already deep in the field. If you're a web application tester or an AppSec engineer curious about this direction, this is a reasonable place to start, and the training is built properly enough to actually get you there. That's it.
+        </p>
+        <p>
+          This is one of a few Hack The Box certifications I'll be writing about. CPTS is next, and that one I'm genuinely looking forward to putting into words.
+        </p>
+
+        <p>
+          Thanks for reading. If this was useful, there is more on the blog, and more coming.
+        </p>
+        <p>
+          I'm Filip Kecman, a penetration tester and security researcher. I write about what I test with my own hands and about what I learn along the way.
+        </p>
+        <p>
+          If you want to talk about any of this, connect with me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>. If you have an idea for a collaboration, or you need a penetration test, reach out through <a href="../index.html#contact">kecman.co</a>.
+        </p>
+      </div>
+      <section class="related-posts" aria-labelledby="related-title">
+        <div class="related-header"><h2 id="related-title">Recommended reading</h2><a href="../blog.html">View all articles &rarr;</a></div>
+        <div class="related-grid">
+        <a class="related-card" href="ccpenx-aws-review-experience.html">
+          <div class="blog-meta"><span class="blog-tag">Career</span><span>2026-04-24</span><span>5 min read</span></div>
+          <h3>My CCPenX-AWS Review &amp; Experience</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        <a class="related-card" href="htb-cwee-review-experience.html">
+          <div class="blog-meta"><span class="blog-tag">Career</span><span>2026-02-05</span><span>5 min read</span></div>
+          <h3>My Hack The Box CWEE Review &amp; Experience</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
