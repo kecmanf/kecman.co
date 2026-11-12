@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Social Engineering and the Human Element, Part 1 | Filip Kecman</title>
+  <meta name="description" content="Applications keep getting harder to break, but people stay the weakest link. Part 1 of my research series on social engineering, simulated humans and why new applications carry a new attack vector." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/social-engineering-human-element-part-1.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/social-engineering-human-element-part-1.html" />
+  <meta property="og:title" content="Social Engineering and the Human Element, Part 1" />
+  <meta property="og:description" content="Applications keep getting harder to break, but people stay the weakest link. Part 1 of my research series on social engineering, simulated humans and why new applications carry a new attack vector." />
+  <meta property="og:image" content="https://kecman.co/social-engineering-wall-and-door.jpg" />
+  <meta property="og:image:alt" content="A solid fortress wall with a person at an ordinary door in its side, and an arrow leading around the wall to that door" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-11-12" />
+
+  <meta property="article:section" content="Research" />
+  <meta property="article:tag" content="Social Engineering" />
+  <meta property="article:tag" content="Prompt Injection" />
+  <meta property="article:tag" content="AI Security" />
+  <meta property="article:tag" content="Penetration Testing" />
+  <meta property="article:tag" content="Security Research" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Social Engineering and the Human Element, Part 1",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-11-12",
+    "description": "Applications keep getting harder to break, but people stay the weakest link. Part 1 of my research series on social engineering, simulated humans and why new applications carry a new attack vector.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/social-engineering-human-element-part-1.html"
+    },
+    "keywords": ["social engineering", "human element in security", "prompt injection", "indirect prompt injection", "AI security", "attack surface"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Social Engineering and the Human Element, Part 1" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/inner.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#research">Research</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Social Engineering and the Human Element, Part 1</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Research</span>
+          <span>November 2026</span>
+          <span>6 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+
+        <figure style="margin: 0 0 40px 0;">
+          <img src="../social-engineering-wall-and-door.webp" alt="A solid fortress wall with a person at an ordinary door in its side, and an orange arrow leading around the wall to that door" width="1733" height="907" style="max-width:100%; height:auto; border-radius:8px;" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">The wall can be perfect. The way in is still the person at the door.</figcaption>
+        </figure>
+
+        <p>
+          Today Jensen Huang resigned as CEO of Nvidia. Reports tie it to his relationships, one of them with a person alleged to be a foreign spy. Nvidia's announcement gave no reason, the allegations about the spy are unproven, and I only know what has been reported. I will not comment on the personal side. The part that interests me is the question the board and the investigators are reportedly asking: whether he was targeted on purpose.
+        </p>
+        <p>
+          That question is the whole subject of this post. A person with access, trust and a busy life is the easiest way into any organization, and no firewall sits in front of that.
+        </p>
+
+        <h2>What Social Engineering Means</h2>
+        <p>
+          Social engineering is getting a person to give up access, information or trust by working on the person. A phishing email is social engineering. So is a phone call from a fake help desk, and so is a friendly stranger at the office door who asks you to hold it open. The attacker never touches the technology.
+        </p>
+        <p>
+          You can harden a web application, a mobile application, an API and an internal network. You can test them, patch them and test them again. People never reach that state. They can be rushed, flattered, scared or simply trusted, and there is no patch for any of those. Every penetration tester learns early that the human is the weakest link in the chain, and the human element is where I start thinking every time.
+        </p>
+        <p>
+          Security is an illusion. The point is to slow the attacker down so you know you are being attacked. With firewalls, patches and strong authentication we can do that well. With people it is much harder, and it will stay that way.
+        </p>
+
+        <h2>It Happens All the Time</h2>
+        <p>
+          We all know this story because he is a famous person. A CEO of one of the biggest companies in the world makes the news. For every story that reaches the headlines, there are many that never do, with people nobody has heard of and companies nobody writes about. Cyber attacks are active all the time, and phishing is running right now, against companies of every size. Most people do not realize how constant it is.
+        </p>
+        <p>
+          The software gives you no rest either. Say your web application, mobile application, API and internal network are secure today. We still see new Common Vulnerabilities and Exposures (CVE) entries almost every day, which are public records of a vulnerability in a specific product. Many of them are critical, in software that a lot of companies use, and a growing part of that research is done with the help of AI.
+        </p>
+
+        <h2>AI Is a Simulated Human</h2>
+        <p>
+          Here is where this series begins. An AI model reasons in language. It can be persuaded, it can be led, and it reacts to context the way a person does. In a lot of ways it is a simulation of a human. So everything I just said about people applies to it as well.
+        </p>
+        <p>
+          That does not mean AI cannot be secured. I know how to secure it. It means it is very hard, harder than securing the code and servers of an application, because the weakness is the same one people have.
+        </p>
+        <p>
+          Two attack classes show the idea well, and I will go deeper into both in later parts. In a direct prompt injection, the attacker types instructions straight into the AI system and the model follows them instead of its original rules. In an indirect prompt injection, the attacker never talks to the model. They plant instructions in something the model will read later, like an email, a web page, a document or a form submission, and the model follows them when it gets there.
+        </p>
+        <figure style="margin: 40px 0;">
+          <img src="../direct-vs-indirect-prompt-injection.webp" alt="Top row: a person speaks directly to an AI chat window. Bottom row in three steps: a person places a document with one highlighted line in an inbox, time passes, then the AI chat window reads the same document" width="1024" height="572" style="max-width:100%; height:auto; border-radius:8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">Top: direct injection, the attacker talks to the model. Bottom: indirect injection. Step 1, the attacker plants an instruction in a document or email. Step 2, time passes. Step 3, the model reads the document and follows the instruction.</figcaption>
+        </figure>
+
+        <p>
+          Think of a new employee at the front desk who is eager to help. A direct injection is a stranger walking up and asking for something. An indirect injection is a note left on the desk. The employee reads it, it looks like it belongs there, and they act on it.
+        </p>
+
+        <figure style="margin: 40px 0;">
+          <img src="../front-desk-prompt-injection.webp" alt="A receptionist at a front desk with a folded note on the desk, and a stranger on the other side holding out an open hand" width="1672" height="941" style="max-width:100%; height:auto; border-radius:8px;" loading="lazy" />
+        </figure>
+
+        <p>
+          Those two are only the start. There are many more vulnerabilities in AI systems, and I plan to go through them one by one.
+        </p>
+
+        <h2>AI Is Now in Everyday Applications</h2>
+        <p>
+          Many new applications use AI in some way, and many older ones have added it. An application that had no AI before had no AI risk before. Now it does. Every one of them gained a new security vector, and it sits next to everything that was already there: the web layer, the API, the mobile application, the network.
+        </p>
+        <p>
+          That is why I say AI increases the attack surface. It does not replace the old problems. It adds a new one on top of them, and to be honest it is a big one.
+        </p>
+
+        <h2>A Different Time</h2>
+        <p>
+          This is a new era, and it is arriving in a different way than the ones before it. I am not sure how else to put it in words. Attacks are found faster, applications carry more than they used to, and the people using them are the same as ever. I do not think people are ready for it. I think security will be required more than ever, in the code, in the infrastructure, in the people, and now in the AI systems we are adding on top.
+        </p>
+
+        <h2>What Happens to the Work</h2>
+        <p>
+          I do not think the number of jobs is getting smaller. I think everything is shifting at a fast pace, for developers, security engineers and penetration testers alike. Parts of our work, like API, web and mobile testing, will probably be automated to a point where they are not that interesting anymore. The steps we take follow a pattern, and a pattern that is the same every time can be automated.
+        </p>
+        <p>
+          Maybe I'm right, maybe I'm wrong, those are just my thoughts. AI is a tool that can replace you if you are not using it, so use it. I also want to spend my time where the work is still new, and that is one of the reasons I will focus on AI security in the next period.
+        </p>
+
+        <h2>What to Expect From This Series</h2>
+        <p>
+          I tested AI systems before I earned my Hack The Box Certified Offensive AI Expert (COAE) certification, and the certification helped me put what I knew in order. The exam is commercial and under confidentiality, so I will not talk about its content, and I will not talk about any client. What I will write about are the attack classes in general terms: how each one works, why it works, and how to defend against it.
+        </p>
+        <p>
+          Some of the defenses are short to say. Treat everything the model reads as untrusted input, the same way you treat anything a user types. Give every tool the model can call only the access it needs. Check what the model claims against the real system before anyone acts on it. And train the people too, because they are still the other half of the problem.
+        </p>
+        <p>
+          This is part one. Where in your own applications has AI been added recently, and has anyone tested it as an attack vector?
+        </p>
+
+        <p>
+          Thanks for reading. If this was useful, there is more on the blog, and more coming.
+        </p>
+        <p>
+          I'm Filip Kecman, a penetration tester and security researcher. I write about what I test with my own hands and about what I learn along the way.
+        </p>
+        <p>
+          If you want to talk about any of this, connect with me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>. If you have an idea for a collaboration, or you need a penetration test, reach out through <a href="../index.html#contact">kecman.co</a>.
+        </p>
+      </div>
+      <section class="related-posts" aria-labelledby="related-title">
+        <div class="related-header"><h2 id="related-title">Recommended reading</h2><a href="../blog.html">View all articles &rarr;</a></div>
+        <div class="related-grid">
+        <a class="related-card" href="htb-coae-review-experience.html">
+          <div class="blog-meta"><span class="blog-tag">Career</span><span>2026-11-09</span><span>6 min read</span></div>
+          <h3>My Hack The Box COAE Review &amp; Experience</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        <a class="related-card" href="how-i-use-ai-to-learn-anything.html">
+          <div class="blog-meta"><span class="blog-tag">Career</span><span>2026-03-04</span><span>7 min read</span></div>
+          <h3>How I Use AI to Learn Anything (And Why Nothing Is Hard Anymore)</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
