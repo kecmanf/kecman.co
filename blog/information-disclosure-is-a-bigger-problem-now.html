@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBD49NHJ0B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MBD49NHJ0B');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Security headers (best-effort via meta; HSTS/X-Frame-Options need real HTTP headers) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; base-uri 'self'; form-action 'self' https://api.web3forms.com" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Information Disclosure Is a Bigger Problem Now | Filip Kecman</title>
+  <meta name="description" content="AI makes it quick and cheap for an attacker to research what you run. Why a version in the Server header or a verbose error message deserves a second look now, and how to hide your stack." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kecman.co/blog/information-disclosure-is-a-bigger-problem-now.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://kecman.co/blog/information-disclosure-is-a-bigger-problem-now.html" />
+  <meta property="og:title" content="Information Disclosure Is a Bigger Problem Now" />
+  <meta property="og:description" content="AI makes it quick and cheap for an attacker to research what you run. Why a version in the Server header or a verbose error message deserves a second look now, and how to hide your stack." />
+  <meta property="og:image" content="https://kecman.co/info-disclosure-label-on-door.jpg" />
+  <meta property="og:image:alt" content="A man in a navy sweater stands in front of a plain door and reads an orange plate on the wall beside it that says nginx 1.18.0" />
+  <meta property="article:author" content="Filip Kecman" />
+  <meta property="article:published_time" content="2026-11-13" />
+
+  <meta property="article:section" content="Pentesting" />
+  <meta property="article:tag" content="Information Disclosure" />
+  <meta property="article:tag" content="Reconnaissance" />
+  <meta property="article:tag" content="Nmap" />
+  <meta property="article:tag" content="OSINT" />
+  <meta property="article:tag" content="Penetration Testing" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Information Disclosure Is a Bigger Problem Now",
+    "author": {
+      "@type": "Person",
+      "name": "Filip Kecman",
+      "url": "https://kecman.co"
+    },
+    "datePublished": "2026-11-13",
+    "description": "AI makes it quick and cheap for an attacker to research what you run. Why a version in the Server header or a verbose error message deserves a second look now, and how to hide your stack.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Filip Kecman"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://kecman.co/blog/information-disclosure-is-a-bigger-problem-now.html"
+    },
+    "keywords": ["information disclosure", "server header", "version disclosure", "nmap service detection", "technology stack fingerprinting", "reconnaissance", "OSINT", "hardening"]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kecman.co/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kecman.co/blog.html" },
+      { "@type": "ListItem", "position": 3, "name": "Information Disclosure Is a Bigger Problem Now" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/inner.css" />
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">Filip Kecman</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html#about">About</a>
+        <a href="../index.html#approach">Approach</a>
+        <a href="../index.html#certifications">Certs</a>
+        <a href="../index.html#research">Research</a>
+        <a href="../index.html#experience">Experience</a>
+        <a href="../index.html#thefreesecurity">TFS</a>
+        <a href="../blog.html" class="active">Blog</a>
+        <a href="../index.html#contact" class="nav-cta">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- BLOG POST -->
+  <article class="blog-post-page">
+    <div class="container">
+      <div class="blog-post-header">
+        <a href="../blog.html" style="font-size:.85rem; color:var(--text-muted); margin-bottom:24px; display:inline-block;">&larr; Back to Blog</a>
+        <h1>Information Disclosure Is a Bigger Problem Now</h1>
+        <div class="blog-meta">
+          <span class="blog-tag">Pentesting</span>
+          <span>November 2026</span>
+          <span>7 min read</span>
+        </div>
+      </div>
+
+      <div class="blog-post-body">
+
+        <figure style="margin: 0 0 40px 0;">
+          <img src="../info-disclosure-label-on-door.webp" alt="A man in a navy sweater stands in front of a plain door and reads an orange plate on the wall beside it that says nginx 1.18.0" width="1024" height="687" style="max-width:100%; height:auto; border-radius:8px;" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">The label next to the door tells the attacker which lock is behind it.</figcaption>
+        </figure>
+
+        <p>
+          Artificial intelligence (AI) changes the severity of some vulnerabilities. The clearest example I have at the moment is information disclosure: a Server header that shows the web server and its version, an error message that says too much, a service that announces what it is the moment you connect. For years we rated these low or informational. I think that rating needs a second look.
+        </p>
+        <p>
+          Those two examples are small ones. I mean every vulnerability that tells you anything about the infrastructure, the technology stack and the versions behind an application.
+        </p>
+
+        <h2>Why It Was Rated Low</h2>
+        <p>
+          Information disclosure means a system gives away more than it needs to. The Server header says nginx 1.18.0. A broken page prints which framework runs the application and where its files sit on the server. By itself that is not a breach, nobody's data is leaving, so scanners and reports put it at the bottom of the list.
+        </p>
+        <p>
+          There was a reason for that. The attacker still had to do the work. Take the version, read the advisories, find out which known vulnerabilities apply, check whether a public exploit exists, and test it. That takes time and knowledge, and for most attackers it was not worth the effort unless they were already after you.
+        </p>
+
+        <h2>What AI Changed</h2>
+        <p>
+          That work is quick now. Give an AI model the output of a scan and ask what is known about these versions, and the answer comes back in the time it takes to read it. Which vulnerabilities apply, which ones have public exploits, what to try first. Research that used to take hours is now a question you type. The steps are the same as before. Everything is just much faster, and the test at the end is easier, stronger and quicker too, and open to a lot more people than before.
+        </p>
+        <p>
+          It goes further than known vulnerabilities. A lot of the software on the internet is open source, so the code is public. An attacker who knows exactly which product and which version you run can point AI at that code and look for a vulnerability nobody has found yet, a zero day. Maybe that takes a week, maybe a month. That is the part that worries me most.
+        </p>
+        <p>
+          If someone wants to target you, they will. That was true before AI. It is the same now, just a lot quicker and easier. And the more your systems tell the attacker about what you run, the quicker and easier it gets.
+        </p>
+
+        <h2>What Nmap Gives Away</h2>
+        <p>
+          Nmap is a network scanner, and it is a good example because everyone uses it and it hands out a lot. With the version detection option (<code>-sV</code>), Nmap connects to each open port, sends a series of probes and compares the answers with a database of known services. The result is the product name and often the exact version, for example nginx 1.18.0 or Apache 2.4.41.
+        </p>
+        <p>
+          Sometimes it gives away even more. A Secure Shell (SSH) service can answer with OpenSSH 8.2p1 Ubuntu 4ubuntu0.5. That one line shows the software, the version, the distribution and the release of the distribution underneath it.
+        </p>
+        <p>
+          The operating system detection option (<code>-O</code>) looks at how the network stack of the machine answers and guesses the operating system from that. The default scripts option (<code>-sC</code>) adds the title of the web page, the Transport Layer Security (TLS) certificate with its subject and the other host names listed inside it, the SSH host keys and more.
+        </p>
+        <p>
+          And an attacker may never need to scan you at all. Services like Shodan and Censys scan the whole internet all the time and keep the results, so the question "what does this company run" can often be answered by a search. These two are just examples. There are many more tools and services that do the same, and everything I list in this post is among the simplest ways to find out what you run.
+        </p>
+
+        <h2>The Rest of the Stack Gives It Away Too</h2>
+        <p>
+          The scan is only one source. A web application tells its story in many places, and this is only a short list of the simplest ones:
+        </p>
+        <ul>
+          <li>Response headers such as X-Powered-By, X-AspNet-Version and Via.</li>
+          <li>Cookie names. PHPSESSID points to PHP, JSESSIONID to Java and ASP.NET_SessionId to ASP.NET.</li>
+          <li>File extensions in the address like .php, .aspx and .jsp.</li>
+          <li>The default 404 page, which looks different for every server and framework.</li>
+          <li>Detailed error messages. A stack trace shows the framework, the file paths and the libraries, and a database error shows which database runs behind the application, often with the version.</li>
+          <li>Paths and files such as <code>/wp-content/</code>, generator meta tags, JavaScript file names and JavaScript source maps.</li>
+          <li>The favicon, which can be fingerprinted and searched for.</li>
+          <li>Domain Name System (DNS) records, where mail and verification entries show which providers the company uses.</li>
+        </ul>
+        <p>
+          A version number does not prove that something is vulnerable. Some Linux distributions fix security bugs without changing the version number. But the version tells the attacker exactly where to start looking, and that is enough.
+        </p>
+
+        <h2>The People Give It Away Too</h2>
+        <p>
+          Not everything comes from your servers. Employees list their experience on LinkedIn: the languages, frameworks, cloud provider and tools they work with every day. Job descriptions are even more direct, because the company writes down the exact stack it wants a new hire to know.
+        </p>
+        <p>
+          An attacker can read the profiles of a few of your developers and your open positions and have a good picture of the stack without sending a single request. This is the open source intelligence (OSINT) part of a test, and a real attacker does the same thing. It is another side of the human element I wrote about in <a href="social-engineering-human-element-part-1.html">the last post</a>.
+        </p>
+        <figure style="margin: 40px 0;">
+          <img src="../people-give-away-the-stack.webp" alt="Two cards, a profile and a job ad, each with one orange highlighted line, and orange arrows leading from them to a checklist labeled Stack" width="1024" height="687" style="max-width:100%; height:auto; border-radius:8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">A profile and a job ad are enough to start a list of what the company runs.</figcaption>
+        </figure>
+
+        <h2>Hide What You Run</h2>
+        <figure style="margin: 0 0 40px 0;">
+          <img src="../guessing-vs-knowing.webp" alt="Two grids of squares. On the left, labeled Hidden, nine squares each with a question mark. On the right, labeled Disclosed, eight faded squares and one orange square with a tick" width="1024" height="687" style="max-width:100%; height:auto; border-radius:8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">When the stack is hidden, the attacker has to guess among many possibilities. When it is disclosed, the attacker knows where to start.</figcaption>
+        </figure>
+        <p>
+          So I think one of the most important things at the moment is to hide what is being used, as fully as you can. Start with the places you control. This list is a starting point and not a complete one, because there are more places and more tools than I can name here:
+        </p>
+        <ul>
+          <li>Remove the version from the Server header, and the name too where the software allows it. In nginx that starts with <code>server_tokens off</code>. In Apache it is <code>ServerTokens Prod</code> and <code>ServerSignature Off</code>.</li>
+          <li>Remove X-Powered-By and similar headers. In PHP, set <code>expose_php = Off</code>.</li>
+          <li>Turn off debug mode and detailed errors in production, and show a generic error page that says nothing about the framework or the database.</li>
+          <li>Rename session cookies that carry the default name of the framework.</li>
+          <li>Turn off or change service banners wherever the service allows it.</li>
+          <li>Put a reverse proxy in front, so headers can be replaced or removed before they leave your network.</li>
+        </ul>
+        <p>
+          You will not hide everything. Nmap does not only read banners, it also looks at how a service behaves when it gets a probe, so a determined scanner can still guess some of it. Default pages and file names also take real effort to change. The goal is to give away as little as possible, and to make the attacker work for every piece.
+        </p>
+
+        <h2>This Is Not a Replacement for Security</h2>
+        <p>
+          Hiding the stack does not replace patching, hardening, testing or any other control. Do those first and keep doing them. A vulnerability is just an unintended way of using something, and it exists whether the attacker knows your version or not. Hiding only makes you a harder target.
+        </p>
+        <p>
+          A steering wheel lock does not make a car impossible to steal. A thief who sees two cars, one with the lock and one without, walks to the one without it. Attackers think the same way. The harder target you are, the more of them pass on you and move on to the next one. That's it.
+        </p>
+        <figure style="margin: 40px 0;">
+          <img src="../two-cars-steering-wheel-lock.webp" alt="A man walks along the sidewalk past a parked car with an orange steering wheel lock visible through its windshield, toward a second car without a lock, and a dashed orange arrow points from the first car to the second" width="1024" height="687" style="max-width:100%; height:auto; border-radius:8px;" loading="lazy" />
+          <figcaption style="font-size:.85rem; color:var(--text-muted); margin-top:10px;">Two cars, one with a steering wheel lock. The thief walks to the other one.</figcaption>
+        </figure>
+        <p>
+          So when a finding like this reaches a report, I would not dismiss it as informational by default. Look at the real impact: what it lets an attacker learn, and how fast they can use it now.
+        </p>
+        <p>
+          Maybe I'm right, maybe I'm wrong, those are just my thoughts while pentesting. If you want to see what your own systems give away, run Nmap against systems you own or have permission to test. What would an attacker learn about your company before sending a single request?
+        </p>
+
+        <p>
+          Thanks for reading. If this was useful, there is more on the blog, and more coming.
+        </p>
+        <p>
+          I'm Filip Kecman, a penetration tester and security researcher. I write about what I test with my own hands and about what I learn along the way.
+        </p>
+        <p>
+          If you want to talk about any of this, connect with me on <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>. If you have an idea for a collaboration, or you need a penetration test, reach out through <a href="../index.html#contact">kecman.co</a>.
+        </p>
+      </div>
+      <section class="related-posts" aria-labelledby="related-title">
+        <div class="related-header"><h2 id="related-title">Recommended reading</h2><a href="../blog.html">View all articles &rarr;</a></div>
+        <div class="related-grid">
+        <a class="related-card" href="social-engineering-human-element-part-1.html">
+          <div class="blog-meta"><span class="blog-tag">Research</span><span>2026-11-12</span><span>6 min read</span></div>
+          <h3>Social Engineering and the Human Element, Part 1</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        <a class="related-card" href="vulnerability-scan-vs-penetration-test.html">
+          <div class="blog-meta"><span class="blog-tag">Pentesting</span><span>2026-02-27</span><span>8 min read</span></div>
+          <h3>Vulnerability Scan vs. Penetration Test: Why the Cheaper Option Could Cost You More</h3>
+          <span class="read-more">Read article &rarr;</span>
+        </a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <span class="footer-text">&copy; 2026 Filip Kecman. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="https://www.linkedin.com/in/filip-kecman/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://thefreesecurity.com" target="_blank" rel="noopener">The Free Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
